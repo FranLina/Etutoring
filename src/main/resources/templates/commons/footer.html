@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <footer th:fragment="footer" class="py-5">
+      <div
+        class="d-flex flex-column flex-sm-row justify-content-around"
+      >
+        <p>&copy; 2023 Etutoring, Inc. All rights reserved.</p>
+        <img th:src="@{/img/logo-encima.png}" width="100em">
+        <ul class="list-unstyled d-flex">
+          <li class="ms-3">
+            <a href="#"><i class="fa-brands fa-facebook fa-2xl" style="color: rgb(11, 218, 115);"></i></a>
+          </li>
+          <li class="ms-3">
+            <a href="#"><i class="fa-brands fa-twitter fa-2xl" style="color: rgb(11, 218, 115);"></i></a>
+          </li>
+          <li class="ms-3">
+            <a href="#"><i class="fa-brands fa-instagram fa-2xl" style="color: rgb(11, 218, 115);"></i></a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
