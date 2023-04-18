@@ -1,17 +1,18 @@
 package com.flb.etutoring.models;
 
-import java.util.List;
+import java.util.Date;
 
-public class Materia {
+public class Calendario {
     private int id;
-    private String nombre;
-    private List<Usuario> profesores;
+    private Usuario profesor;
+    private Date fecha;
+    private String horarios;
 
-    public Materia() {
+    public Calendario(int id) {
+        this.id = id;
     }
 
-    public Materia(int id) {
-        this.id = id;
+    public Calendario() {
     }
 
     public int getId() {
@@ -22,20 +23,28 @@ public class Materia {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Usuario getProfesor() {
+        return profesor;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setProfesor(Usuario profesor) {
+        this.profesor = profesor;
     }
 
-    public List<Usuario> getProfesores() {
-        return profesores;
+    public Date getFecha() {
+        return fecha;
     }
 
-    public void setProfesores(List<Usuario> profesores) {
-        this.profesores = profesores;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getHorarios() {
+        return horarios;
+    }
+
+    public void setHorarios(String horarios) {
+        this.horarios = horarios;
     }
 
     @Override
@@ -54,11 +63,10 @@ public class Materia {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Materia other = (Materia) obj;
+        Calendario other = (Calendario) obj;
         if (id != other.id)
             return false;
         return true;
     }
 
-    
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+        <h1>Usuarios</h1>
+        <!--<a th:href="@{/clientes/nuevoCliente}" href="nuevoCliente.html" class="btn btn-dark" id="nuevoCliente"><img
+                th:src="@{/img/nuevo.png}" class="card-img-top" alt="..." width="8px" height="20px" /></a>
+        <label id="textoNuevoCliente" th:text="#{clientes.nuevo}">Nuevo cliente</label>-->
+        <table class="table table-light table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Ciudad</th>
+                    <th>Dirección</th>
+                    <th>Email</th>
+                    <th>Tipo</th>
+                    <th>Operaciones</th>
+                </tr>
+            </thead>
+            <div th:each="usuario : ${usuarios}" class="col-3">
+                <tr>
+                    <td>
+                        <p th:text="${usuario.id}"></p>
+                    </td>
+                    <td>
+                        <p th:text="${usuario.nombre}"></p>
+                    </td>
+                    <td>
+                        <p th:text="${usuario.apellidos}"></p>
+                    </td>
+                    <td>
+                        <p th:text="${usuario.ciudad}"></p>
+                    </td>
+                    <td>
+                        <div th:each="direccion : ${usuario.direcciones}">
+                            <p th:text="${direccion.calle}"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <p th:text="${usuario.correo}"></p>
+                    </td>
+                    <td>
+                        <div th:each="tipo : ${usuario.tipo}">
+                            <p th:text="${tipo.nombre}"></p>
+                        </div>
+                    </td>
+                    <td>
+                        <a th:href="@{/usuarios/modificar?id=}+${usuario.id}" class="btn btn-warning" id="editarUsuario"><i
+                                class="fa fa-pencil"></i></a>
+                        <a th:href="@{/usuarios/borrar?id=}+${usuario.id}" class="btn btn-danger" id="borrarCliente"><i
+                                class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+            </div>
+        </table>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 2em;
+        }
+
+        .foto {
+            width: 150px;
+            height: 100px;
+            margin: auto;
+            margin-bottom: 3em;
+        }
+
+        .espaciado input {
+            margin-bottom: 1em;
+        }
+
+        .direccion {
+            margin-top: 1em;
+        }
+
+        .enlaces label {
+            width: 12em;
+        }
+        .row {
+            margin-top: 4em;
+        }
+
+        .row .boton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .boton input,
+        .boton a {
+            margin: 4em 1em 0 1em;
+            width: 16em;
+        }
+
+        .content-select select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+
+        /* Eliminamos la fecha que por defecto aparece en el desplegable */
+        .content-select select::-ms-expand {
+            display: none;
+        }
+
+        .content-select {
+            max-width: 250px;
+            position: relative;
+        }
+
+        .content-select select {
+            display: inline-block;
+            width: 100%;
+            cursor: pointer;
+            padding: 7px 10px;
+            height: 42px;
+            outline: 0;
+            border: 0;
+            border-radius: 0;
+            background: #ffffff;
+            color: black;
+            font-size: 1em;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        /* 
+Creamos la fecha que aparece a la izquierda del select.
+Realmente este elemento es un cuadrado que sólo tienen
+dos bordes con color y que giramos con transform: rotate(-45deg);
+*/
+        .content-select i {
+            position: absolute;
+            right: 20px;
+            top: calc(50% - 13px);
+            width: 16px;
+            height: 16px;
+            display: block;
+            border-left: 4px solid #2AC176;
+            border-bottom: 4px solid #2AC176;
+            transform: rotate(-45deg);
+            /* Giramos el cuadrado */
+            transition: all 0.25s ease;
+        }
+
+        .content-select:hover i {
+            margin-top: 3px;
+        }
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+        <h1>Modificar Usuario</h1>
+
+        <form th:action="@{/usuarios/update}" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col">
+                    <div class="foto">
+                        <img th:if="!(${usuario.imageView})" th:src="@{/img/user.jpg}" class="card-img-top" alt="..."
+                            width="100px" height="100px" />
+                        <img th:unless="!(${usuario.imageView})"
+                            th:src="'data:image/jpeg;base64,' + ${usuario.imageView}" class="card-img-top" alt="..."
+                            width="100px" height="100px" />
+                        <span>Ingresa el archivo: <input name="file" type="file" id="file" /></span>
+
+                        <div class="enlaces">
+                            <h3 class="form-h3 direccion">Direcciones</h3>
+                            <a th:href="@{/direcciones/nuevo?id=}+${usuario.id}">
+                                <label class="form-label" th:text="@{Añadir una dirección...}"></label>
+                            </a>
+                            <div th:each="direccion : ${usuario.direcciones}">
+                                <a th:href="@{/direcciones/modificar?id=}+${direccion.id}">
+                                    <label class="form-label" th:text="${direccion.calle}"></label>
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="form-h3 direccion">Permisos</h3>
+                            <div th:each="tipo : ${tipos}">
+                                <input type="checkbox" name="ck_tipos" th:value="${tipo.id}"
+                                    th:checked="${tipo.perteneceUsuario}">
+                                <label th:text="${tipo.nombre}"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col espaciado">
+                    <div>
+                        <label hidden for="id" class="form-label">ID</label>
+                        <input type="hidden" class="form-control" id="id" name="id" th:value="${usuario.id}" />
+                    </div>
+                    <div>
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                            th:value="${usuario.nombre}" />
+                    </div>
+                    <div>
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" id="apellidos" name="apellidos"
+                            th:value="${usuario.apellidos}" />
+                    </div>
+                    <div>
+                        <label for="ciudad" class="form-label">Ciudad</label>
+                        <input type="text" class="form-control" id="ciudad" name="ciudad"
+                            th:value="${usuario.ciudad}" />
+                    </div>
+                    <div>
+                        <label for="correo" class="form-label">Correo</label>
+                        <input type="text" class="form-control" id="correo" name="correo"
+                            th:value="${usuario.correo}" />
+                    </div>
+                    <div>
+                        <label for="materia_profe" class="form-label">Materia</label>
+                        <div class="content-select">
+                            <select id="materia_profe" name="materia_profe">
+                                <option value="0" selected="true">Sin Seleccionar</option>
+                                <div th:each="materia : ${materias}">
+                                    <div th:if="!(${materia}==${usuario.materia})">
+                                        <option th:value="${materia.id}" th:text="${materia.nombre}"></option>
+                                        </option>
+                                    </div>
+                                    <div th:unless="!(${materia}==${usuario.materia})">
+                                        <option th:value="${materia.id}" th:text="${materia.nombre}" selected="true">
+                                        </option>
+                                    </div>
+                                </div>
+                            </select>
+                            <i></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="boton">
+                    <a th:href="@{/usuarios/list}" class="btn btn-outline-warning" id="btnVolver">Volver</a>
+                    <input class="btn btn-outline-success botonCentrado" type="submit" id="btnEnviar" value="Guardar">
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

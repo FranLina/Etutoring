@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 2em;
+        }
+
+        .espaciado input {
+            margin-bottom: 1em;
+        }
+
+        .row .boton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .boton input,
+        .boton a,
+        .boton button {
+            margin: 4em 1em;
+            width: 16em;
+        }
+
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+        <h1>Añadir Dirección</h1>
+        <form th:action="@{/direcciones/save}" method="post">
+            <div class="row">
+                <div class="col espaciado">
+                    <!--<div>
+                        <label hidden for="id" class="form-label">ID</label>
+                        <input type="hidden" class="form-control" id="id" name="id" th:value="${direccion.id}" />
+                    </div>-->
+                    <div>
+                        <label for="calle" class="form-label">Calle</label>
+                        <input type="text" class="form-control" id="calle" name="calle"/>
+                    </div>
+                    <div>
+                        <label for="latitud" class="form-label">Latitud</label>
+                        <input type="text" class="form-control" id="latitud" name="latitud"/>
+                    </div>
+                    <div>
+                        <label for="altitud" class="form-label">Altitud</label>
+                        <input type="text" class="form-control" id="altitud" name="altitud"/>
+                    </div>
+                    <div>
+                        <label hidden for="id_usuario" class="form-label">ID_Usuario</label>
+                        <input type="hidden" class="form-control" id="id_usuario" name="id_usuario" th:value="${usuario_id}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="boton">
+                    <a th:href="@{/usuarios/modificar?id=}+${usuario_id}" class="btn btn-outline-warning"
+                        id="btnVolver">Volver</a>
+                    <input class="btn btn-outline-success" type="submit" id="btnEnviar" value="Guardar">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

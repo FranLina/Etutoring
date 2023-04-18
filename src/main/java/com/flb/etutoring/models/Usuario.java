@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.flb.etutoring.utils.ImageUtils;
 
 public class Usuario {
     private int id;
@@ -13,32 +14,23 @@ public class Usuario {
     private Date fechaNacimiento;
     private String correo;
     private String ciudad;
-    private String direccion;
     private List<Tipo> tipo;
+    private Materia materia;
+    private List<Valoracion> valoraciones;
+    private List<Direccion> direcciones;
+    private Calendario calendario;
     private byte[] fotoPerfil;
     private String username;
     private String password;
+
+    
+    
 
     public Usuario() {
     }
 
     public Usuario(int id) {
         this.id = id;
-    }
-
-    public Usuario(int id, String nombre, String apellidos, Date fechaNacimiento, String correo, String ciudad,
-            String direccion, List<Tipo> tipo, byte[] fotoPerfil, String username, String password) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.fechaNacimiento = fechaNacimiento;
-        this.correo = correo;
-        this.ciudad = ciudad;
-        this.direccion = direccion;
-        this.tipo = tipo;
-        this.fotoPerfil = fotoPerfil;
-        this.username = username;
-        this.password = password;
     }
 
     public int getId() {
@@ -89,14 +81,6 @@ public class Usuario {
         this.ciudad = ciudad;
     }
 
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
     public List<Tipo> getTipo() {
         return tipo;
     }
@@ -105,12 +89,48 @@ public class Usuario {
         this.tipo = tipo;
     }
 
+    public Materia getMateria() {
+        return materia;
+    }
+
+    public void setMateria(Materia materia) {
+        this.materia = materia;
+    }
+
+    public List<Valoracion> getValoraciones() {
+        return valoraciones;
+    }
+
+    public void setValoraciones(List<Valoracion> valoraciones) {
+        this.valoraciones = valoraciones;
+    }
+
+    public List<Direccion> getDirecciones() {
+        return direcciones;
+    }
+
+    public void setDirecciones(List<Direccion> direcciones) {
+        this.direcciones = direcciones;
+    }
+
+    public Calendario getCalendario() {
+        return calendario;
+    }
+
+    public void setCalendario(Calendario calendario) {
+        this.calendario = calendario;
+    }
+
     public byte[] getFotoPerfil() {
         return fotoPerfil;
     }
 
     public void setFotoPerfil(byte[] fotoPerfil) {
         this.fotoPerfil = fotoPerfil;
+    }
+
+    public String getImageView() {
+        return ImageUtils.getImgData(this.fotoPerfil);
     }
 
     public String getUsername() {
