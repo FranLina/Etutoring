@@ -36,9 +36,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public List<Usuario> findByMateria(int materia_id) {
+        usu = restTemplate.getForObject(urlWSetutoring + "usuarios/materia/{materia_id}", Usuario[].class, materia_id);
+        List<Usuario> usuarios = Arrays.asList(usu);
+        return usuarios;
+    }
+
+    @Override
     public Usuario getByUsername(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getByUsername'");
+        Usuario u = restTemplate.getForObject(urlWSetutoring + "usuarios/buscar/{username}", Usuario.class, username);
+        return u;
     }
 
     @Override

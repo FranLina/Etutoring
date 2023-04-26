@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .tabla {
+            margin: 3em 0;
+        }
+
+        .tarjeta-profesor {
+            margin-top: 3em;
+            background-color: rgb(11, 218, 115);
+            border-radius: 1em;
+            padding: 1em;
+            color: aliceblue;
+        }
+        .materia span{
+            background-color: aliceblue;
+            padding: 0.1em 1em;
+            border-radius: 1em;
+            color: rgb(11, 218, 115);
+        }
+
+        .calendar-month {
+            text-align: center;
+        }
+
+        .mes {
+            font-weight: bold;
+            font-size: 2vw;
+        }
+
+        .botones-month {
+            color: rgb(11, 218, 115);
+        }
+
+        @media screen and (max-width: 800px) {
+            .textoHorario {
+                font-size: 2vw;
+            }
+        }
+    </style>
+    <div th:replace="commons/header :: header" />
+</head>
+
+<body>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container-md">
+        <div class="tarjeta-profesor">
+            <div class="profesor">
+                <strong>Profesor: </strong>
+                <span th:text="${profesor.nombre} + @{, }"></span>
+                <span th:text="${profesor.apellidos}"></span>
+            </div>
+            <div class="materia">
+                <strong>Materia: </strong>
+                <span th:text="${profesor.materia.nombre}"></span>
+            </div>
+        </div>
+        <table class="tabla calendar table table-bordered table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th colspan="8" class="calendar-month">
+                        <a th:href="@{/calendario/profesor?id=}+${profesor.id}+@{&year=}+${year}+@{&month=}+${month-1}"><i
+                                class="botones-month fa-solid fa-circle-left fa-2xl"></i></a>
+                        <span class="mes" th:text="${date} + ${year}"></span>
+                        <a th:href="@{/calendario/profesor?id=}+${profesor.id}+@{&year=}+${year}+@{&month=}+${month+1}"><i
+                                class="botones-month fa-solid fa-circle-right fa-2xl"></i></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="w-13">Lunes</th>
+                    <th class="w-13">Martes</th>
+                    <th class="w-13">Miércoles</th>
+                    <th class="w-13">Jueves</th>
+                    <th class="w-13">Viernes</th>
+                    <th class="w-13">Sábado</th>
+                    <th class="w-13">Domingo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="week : ${weeks}">
+                    <td th:each="day : ${week}" class="w-13">
+                        <span th:text="${day}"></span>
+                        <div th:each="clase : ${calendar}">
+                            <span
+                                th:if="${clase.localFecha.getDayOfMonth}==${day} and ${clase.localFecha.getMonthValue}==${month} and ${clase.localFecha.getYear}==${year}">
+                                <a th:href="@{clases?id=}+${clase.id}" th:text="${clase.horarios}"
+                                    class="textoHorario"></a>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

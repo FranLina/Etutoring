@@ -1,6 +1,7 @@
 package com.flb.etutoring.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.flb.etutoring.models.Calendario;
 import com.flb.etutoring.models.Materia;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
+import com.flb.etutoring.services.CalendarioService;
 import com.flb.etutoring.services.DireccionService;
 import com.flb.etutoring.services.MateriaService;
 import com.flb.etutoring.services.TipoService;
@@ -37,6 +40,9 @@ public class UsuarioController {
     @Autowired
     DireccionService dService;
 
+    @Autowired
+    CalendarioService cService;
+
     @GetMapping(value = "/list")
     public ModelAndView list(Model model) {
         List<Usuario> usuarios = uService.findAll();
@@ -47,6 +53,21 @@ public class UsuarioController {
 
         ModelAndView modelAndView = new ModelAndView("usuarios/list");
         modelAndView.addObject("usuarios", usuarios);
+        return modelAndView;
+    }
+
+    @GetMapping(value = "/listProfesor")
+    public ModelAndView listProfesores(Model model) {
+        List<Usuario> usuarios = uService.findAll();
+        LocalDate fechaInicio = LocalDate.now();
+
+        /*for (Usuario usuario : usuarios) {
+            usuario.setDirecciones(dService.findByUsuario(usuario));
+        }*/
+
+        ModelAndView modelAndView = new ModelAndView("usuarios/listProfesor");
+        modelAndView.addObject("usuarios", usuarios);
+        modelAndView.addObject("fecha", fechaInicio);
         return modelAndView;
     }
 
@@ -98,7 +119,7 @@ public class UsuarioController {
             Materia m = new Materia(materia_id);
             usuario.setMateria(m);
         }
-        
+
         uService.update(usuario);
 
         modelAndView.setViewName("redirect:modificar?id=" + usuario.getId());

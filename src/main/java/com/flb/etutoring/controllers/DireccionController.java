@@ -29,6 +29,18 @@ public class DireccionController {
         return modelAndView;
     }
 
+    @PostMapping(value = "/update")
+    public ModelAndView update(Direccion direccion) {
+
+        Direccion dir = dService.findById(direccion.getId());
+        ModelAndView modelAndView = new ModelAndView();
+        direccion.setUsuario(new Usuario(dir.getUsuario().getId()));
+        dService.update(direccion);
+
+        modelAndView.setViewName("redirect:/usuarios/modificar?id=" + direccion.getUsuario().getId());
+        return modelAndView;
+    }
+
     @RequestMapping(value = { "/nuevo" })
     public ModelAndView nuevo(@RequestParam(name = "id", required = true) int usuario_id) {
         ModelAndView modelAndView = new ModelAndView();

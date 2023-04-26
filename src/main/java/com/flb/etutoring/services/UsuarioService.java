@@ -9,6 +9,8 @@ public interface UsuarioService {
 
     public Usuario findById(int id);
 
+    public List<Usuario> findByMateria(int materia_id);
+
     public Usuario getByUsername(String username);
 
     public Usuario save(Usuario usuario);

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+
+        table{
+            margin-top: 2em;
+        }
+
+        .cabecera{
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+        <h1>Materias</h1>
+        <a th:href="@{/materias/nuevo}" class="btn btn-info" id="nuevoMateria"><i class="fa fa-graduation-cap"> </i>Nueva materia</a>
+        <table class="table table-light table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Operaciones</th>
+                </tr>
+            </thead>
+            <div th:each="materia : ${materias}" class="col-3">
+                <tr>
+                    <td>
+                        <p th:text="${materia.id}"></p>
+                    </td>
+                    <td>
+                        <p th:text="${materia.nombre}"></p>
+                    </td>
+                    <td>
+                        <a th:href="@{/materias/modificar?id=}+${materia.id}" class="btn btn-warning"
+                            id="editarMateria"><i class="fa fa-pencil"></i></a>
+                    </td>
+                </tr>
+            </div>
+        </table>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

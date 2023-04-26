@@ -49,8 +49,7 @@ public class MateriaServiceImpl implements MateriaService {
 
     @Override
     public void deleteById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+        restTemplate.delete(urlWSetutoring + "materias/{id}", id);
     }
 
 }

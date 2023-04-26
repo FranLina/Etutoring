@@ -1,5 +1,7 @@
 package com.flb.etutoring.models;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class Calendario {
@@ -33,6 +35,10 @@ public class Calendario {
 
     public Date getFecha() {
         return fecha;
+    }
+
+    public LocalDate getLocalFecha() {
+        return fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public void setFecha(Date fecha) {
