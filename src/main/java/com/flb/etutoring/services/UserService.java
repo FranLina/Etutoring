@@ -3,6 +3,8 @@ package com.flb.etutoring.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,11 +22,16 @@ public class UserService implements UserDetailsService {
     @Autowired
     UsuarioService uService;
 
+    @Autowired
+    HttpSession session;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario u = uService.getByUsername(username);
         List<Tipo> tipos = u.getTipo();
 
+        session.setAttribute("usuario_id", u.getId());
+        
         List<GrantedAuthority> roles = new ArrayList<GrantedAuthority>();
 
         for (Tipo tipo : tipos) {

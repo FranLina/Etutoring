@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <div th:replace="commons/header :: header" />
     <style>
         .tabla {
             margin: 3em 0;
@@ -13,12 +14,14 @@
 
         .tarjeta-profesor {
             margin-top: 3em;
-            background-color: rgb(11, 218, 115);
+            background-color: rgba(11, 218, 114, 0.85);
             border-radius: 1em;
             padding: 1em;
             color: aliceblue;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
         }
-        .materia span{
+
+        .materia span {
             background-color: aliceblue;
             padding: 0.1em 1em;
             border-radius: 1em;
@@ -35,7 +38,28 @@
         }
 
         .botones-month {
-            color: rgb(11, 218, 115);
+            color: rgba(11, 218, 114, 0.85);
+            margin: 0 .5em;
+        }
+
+        td a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: black;
+            text-decoration: none;
+        }
+
+        .agotado {
+            background-color: rgba(211, 28, 28, 0.85) !important;
+        }
+
+        .disponible {
+            background-color: rgba(11, 218, 114, 0.85) !important;
+        }
+
+        .bloqueado {
+            background-color: rgba(143, 143, 143, 0.85) !important;
         }
 
         @media screen and (max-width: 800px) {
@@ -44,7 +68,53 @@
             }
         }
     </style>
-    <div th:replace="commons/header :: header" />
+
+    <script>
+        window.addEventListener("DOMContentLoaded", (event) => {
+            /*var lista = document.querySelectorAll("div[class='disponible']");
+            var lista2 = document.querySelectorAll("div[class='agotado']");
+            lista.forEach(element => element.parentNode.parentNode.classList.add("disponible"));
+            lista.forEach(element => element.classList.remove("disponible"));
+            lista2.forEach(element => element.parentNode.parentNode.classList.add("agotado"));
+            lista2.forEach(element => element.classList.remove("agotado"));*/
+            var lista_td = document.querySelectorAll("td");
+
+            for (let i = 0; i < lista_td.length; i++) {
+                var td_actual = lista_td[i].children;
+                var contadorD = 0;
+                var contadorA = 0;
+                for (let j = 0; j < td_actual.length; j++) {
+                    var div_actual = td_actual[j].children;
+                    for (let k = 0; k < div_actual.length; k++) {
+                        if (div_actual[k].className == "disponible") {
+                            contadorD++;
+                        } else if (div_actual[k].className == "agotado") {
+                            contadorA++;
+                        }
+                    }
+                }
+                if (contadorA > 0 && contadorD == 0) {
+                    lista_td[i].classList.add("agotado");
+                    var diaMes = lista_td[i].children[0].children[0].textContent;
+                    var enlace = document.createElement("a");
+                    var texto = document.createElement("span");
+                    texto.textContent = diaMes;
+                    enlace.appendChild(texto);
+                    lista_td[i].replaceChildren(enlace);
+                } else if (contadorD > 0) {
+                    lista_td[i].classList.add("disponible");
+                } else if (contadorA == 0 && contadorD == 0) {
+                    var diaMes = lista_td[i].children[0].children[0].textContent;
+                    var enlace = document.createElement("a");
+                    var texto = document.createElement("span");
+                    texto.textContent = diaMes;
+                    enlace.appendChild(texto);
+                    lista_td[i].replaceChildren(enlace);
+                }
+            }
+        });
+    </script>
+
 </head>
 
 <body>
@@ -85,13 +155,11 @@
             <tbody>
                 <tr th:each="week : ${weeks}">
                     <td th:each="day : ${week}" class="w-13">
-                        <span th:text="${day}"></span>
-                        <div th:each="clase : ${calendar}">
-                            <span
-                                th:if="${clase.localFecha.getDayOfMonth}==${day} and ${clase.localFecha.getMonthValue}==${month} and ${clase.localFecha.getYear}==${year}">
-                                <a th:href="@{clases?id=}+${clase.id}" th:text="${clase.horarios}"
-                                    class="textoHorario"></a>
-                            </span>
+                        <a th:href="@{/calendario/reservar?id=}+${profesor.id}+@{&year=}+${year}+@{&month=}+${month}+@{&day=}+${day}"><span th:text="${day}"></span></a>
+                        <div th:each="clase : ${calendar}"
+                            th:if="${clase.localFecha.getDayOfMonth}==${day} and ${clase.localFecha.getMonthValue}==${month} and ${clase.localFecha.getYear}==${year}">
+                            <div th:if="${clase.reservado}==false" class="disponible"></div>
+                            <div th:if="${clase.reservado}==true" class="agotado"></div>
                         </div>
                     </td>
                 </tr>

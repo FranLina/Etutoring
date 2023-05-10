@@ -9,6 +9,7 @@ public class Calendario {
     private Usuario profesor;
     private Date fecha;
     private String horarios;
+    private Boolean reservado;
 
     public Calendario(int id) {
         this.id = id;
@@ -73,6 +74,14 @@ public class Calendario {
         if (id != other.id)
             return false;
         return true;
+    }
+
+    public Boolean getReservado() {
+        return reservado;
+    }
+
+    public void setReservado(Boolean reservado) {
+        this.reservado = reservado;
     }
 
 }

@@ -5,7 +5,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.flb.etutoring.models.Calendario;
 import com.flb.etutoring.models.Materia;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
@@ -43,8 +44,9 @@ public class UsuarioController {
     @Autowired
     CalendarioService cService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping(value = "/list")
-    public ModelAndView list(Model model) {
+    public ModelAndView list(Model model, HttpSession session) {
         List<Usuario> usuarios = uService.findAll();
 
         for (Usuario usuario : usuarios) {
@@ -59,14 +61,17 @@ public class UsuarioController {
     @GetMapping(value = "/listProfesor")
     public ModelAndView listProfesores(Model model) {
         List<Usuario> usuarios = uService.findAll();
+        List<Usuario> profesores = new ArrayList<>();
         LocalDate fechaInicio = LocalDate.now();
 
-        /*for (Usuario usuario : usuarios) {
-            usuario.setDirecciones(dService.findByUsuario(usuario));
-        }*/
+        for (Usuario usuario : usuarios) {
+            if (usuario.getMateria() != null) {
+                profesores.add(usuario);
+            }
+        }
 
         ModelAndView modelAndView = new ModelAndView("usuarios/listProfesor");
-        modelAndView.addObject("usuarios", usuarios);
+        modelAndView.addObject("usuarios", profesores);
         modelAndView.addObject("fecha", fechaInicio);
         return modelAndView;
     }
@@ -85,7 +90,16 @@ public class UsuarioController {
             }
         }
 
+        String isProfesor = "";
+        for (Tipo ti : u.getTipo()) {
+            if (ti.getNombre().equals("PROFESOR")) {
+                isProfesor = "1";
+                break;
+            }
+        }
+
         modelAndView.addObject("usuario", u);
+        modelAndView.addObject("isProfesor", isProfesor);
         modelAndView.addObject("materias", mService.findAll());
         modelAndView.addObject("tipos", tipos);
         modelAndView.setViewName("usuarios/edit");
@@ -93,8 +107,10 @@ public class UsuarioController {
     }
 
     @PostMapping(value = "/update")
-    public ModelAndView update(Usuario usuario, @RequestParam(value = "ck_tipos") int[] ck_tipos,
-            @RequestParam(value = "materia_profe") int materia_id, @RequestParam("file") MultipartFile imagen)
+    public ModelAndView update(Usuario usuario,
+            @RequestParam(value = "ck_tipos", required = false) int[] ck_tipos,
+            @RequestParam(value = "materia_profe", required = false, defaultValue = "0") int materia_id,
+            @RequestParam("file") MultipartFile imagen)
             throws IOException {
 
         ModelAndView modelAndView = new ModelAndView();
@@ -104,17 +120,22 @@ public class UsuarioController {
         usuario.setPassword(u.getPassword());
         usuario.setFotoPerfil(imagen.getBytes());
 
-        List<Tipo> tipos = usuario.getTipo();
-        if (tipos == null) {
-            tipos = new ArrayList<Tipo>();
+        if (ck_tipos != null) {
+            List<Tipo> tipos = usuario.getTipo();
+            if (tipos == null) {
+                tipos = new ArrayList<Tipo>();
+            }
+
+            for (int i : ck_tipos) {
+                Tipo t = new Tipo(i);
+                tipos.add(t);
+            }
+
+            usuario.setTipo(tipos);
+        } else {
+            usuario.setTipo(u.getTipo());
         }
 
-        for (int i : ck_tipos) {
-            Tipo t = new Tipo(i);
-            tipos.add(t);
-        }
-
-        usuario.setTipo(tipos);
         if (materia_id != 0) {
             Materia m = new Materia(materia_id);
             usuario.setMateria(m);

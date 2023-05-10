@@ -28,6 +28,7 @@
         .enlaces label {
             width: 12em;
         }
+
         .row {
             margin-top: 4em;
         }
@@ -127,7 +128,7 @@ dos bordes con color y que giramos con transform: rotate(-45deg);
                                 </a>
                             </div>
                         </div>
-                        <div>
+                        <div sec:authorize="hasAnyAuthority('ADMIN')">
                             <h3 class="form-h3 direccion">Permisos</h3>
                             <div th:each="tipo : ${tipos}">
                                 <input type="checkbox" name="ck_tipos" th:value="${tipo.id}"
@@ -162,7 +163,7 @@ dos bordes con color y que giramos con transform: rotate(-45deg);
                         <input type="text" class="form-control" id="correo" name="correo"
                             th:value="${usuario.correo}" />
                     </div>
-                    <div>
+                    <div th:if="${isProfesor}==1">
                         <label for="materia_profe" class="form-label">Materia</label>
                         <div class="content-select">
                             <select id="materia_profe" name="materia_profe">
@@ -188,6 +189,8 @@ dos bordes con color y que giramos con transform: rotate(-45deg);
                 <div class="boton">
                     <a th:href="@{/usuarios/list}" class="btn btn-outline-warning" id="btnVolver">Volver</a>
                     <input class="btn btn-outline-success botonCentrado" type="submit" id="btnEnviar" value="Guardar">
+                    <a th:if="${isProfesor}==1" th:href="@{/calendario/generarCalendario?id=}+${usuario.id}" class="btn btn-outline-info"
+                        id="btnCalendario">Generar Calendario <i class="fa fa-calendar-days"></i></a>
                 </div>
             </div>
 

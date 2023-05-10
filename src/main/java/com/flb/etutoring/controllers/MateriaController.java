@@ -3,6 +3,7 @@ package com.flb.etutoring.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import com.flb.etutoring.services.MateriaService;
 import com.flb.etutoring.services.UsuarioService;
 
 @Controller
+@PreAuthorize("hasAnyAuthority('ADMIN')")
 @RequestMapping("materias")
 public class MateriaController {
 
