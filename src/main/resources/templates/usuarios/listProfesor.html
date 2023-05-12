@@ -76,7 +76,7 @@
                         <strong th:text="${profesor.nombre}"></strong>
                         <strong th:text="${profesor.apellidos}" class="card-text"></strong>
                         <p th:text="${profesor.materia.nombre}" class="card-text"></p>
-                        <a th:href="@{/calendario/profesor?id=}+${profesor.id}+@{&year=}+${fecha.getYear}+@{&month=}+${fecha.getMonthValue}"
+                        <a th:href="@{/calendario/profesor?id=}+${profesor.id}"
                             class="btn" id="verCalendario">Ver calendario <i class="fa fa-calendar-days"></i></a>
                     </div>
                 </div>

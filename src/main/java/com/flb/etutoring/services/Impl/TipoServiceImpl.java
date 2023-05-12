@@ -37,8 +37,9 @@ public class TipoServiceImpl implements TipoService {
 
     @Override
     public Tipo save(Tipo tipo) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        Tipo t = restTemplate.postForObject(urlWSetutoring + "tipos", tipo, Tipo.class);
+        tipo.setId(t.getId());
+        return t;
     }
 
     @Override

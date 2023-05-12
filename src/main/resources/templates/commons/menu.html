@@ -24,6 +24,9 @@
               <a class="nav-link user" th:href="@{/materias/list}" sec:authorize="hasAnyAuthority('ADMIN')"><i class="fa-solid fa-book-bookmark"> </i> Materias</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link user" th:href="@{/clases/usuario?id=}+${session.usuario_id}" sec:authorize="hasAnyAuthority('ADMIN','ALUMNO')"><i class="fa fa-calendar-days"> </i> Mi Calendario</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link user" href="#"><i class="fa-solid fa-hands-holding-child"> </i> Sobre Nosotros</a>
             </li>
           </ul>
@@ -32,7 +35,6 @@
             <button class="btn btn-outline-success" type="submit">Buscar</button>
           </form>
           <div class="usuario">
-           
             <a class="nav-link user" th:href="@{/usuarios/modificar?id=}+${session.usuario_id}"><i class="fa-solid fa-user-tie"> </i> Perfil</a>
             <a class="nav-link user" th:href="@{/login}"><i class="fa-solid fa-right-from-bracket"> </i> Cerrar sesión</a>
           </div>

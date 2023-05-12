@@ -57,7 +57,7 @@ public class LoginController {
         tipos.add(new Tipo(ck_tipos));
         usuario.setTipo(tipos);
         usuario.setPassword(encoder.encode(usuario.getPassword()));
-        Usuario u = uService.save(usuario);
+        /* Usuario u = */uService.save(usuario);
 
         modelAndView.setViewName("redirect:/login");
         return modelAndView;

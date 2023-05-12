@@ -1,5 +1,7 @@
 package com.flb.etutoring.models;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class Clase {
@@ -56,6 +58,10 @@ public class Clase {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public LocalDate getLocalFecha() {
+        return fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public Boolean getOnline() {

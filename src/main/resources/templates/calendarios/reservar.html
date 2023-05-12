@@ -7,12 +7,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <div th:replace="commons/header :: header" />
+    <style>
+        .contenedor {
+            margin: 2em 4em;
+            display: flex;
+            flex-direction: row;
+            row-gap: 2em;
+            justify-content: space-evenly;
+        }
+
+        .card {
+            margin-top: 3em;
+            width: 15em;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-body {
+            background-color: rgba(11, 218, 114, 0.85);
+            color: aliceblue;
+        }
+
+        .tarjeta-dia {
+            margin-top: 3em;
+            background-color: rgba(11, 218, 114, 0.85);
+            border-radius: 1em;
+            padding: 1em;
+            color: aliceblue;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .no-disponible {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+
+
+        .btn-reservar {
+            background-color: aliceblue;
+            padding: 0.2em 1em;
+            margin: .5em auto 0 auto;
+            border-radius: .7em;
+            color: rgb(11, 218, 115);
+        }
+
+        .btn-reservar:hover {
+            background-color: rgba(240, 248, 255, 0.9);
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+        }
+
+        .enlace {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: rgb(11, 218, 115);
+            text-decoration: none;
+        }
+
+        .enlace-no-disponible {
+            color: rgba(255, 0, 0, 0.5);
+        }
+    </style>
 </head>
 
 <body>
     <div th:replace="commons/menu :: menu" />
-    <div class="container">
-        
+    <div class="contenedor">
+        <div class="card">
+            <img th:src="'data:image/jpeg;base64,' + ${profesor.imageView}" class="card-img-top" alt="..." width="200px"
+                height="200px">
+            <div class="card-body">
+                <strong th:text="${profesor.nombre}"></strong>
+                <strong th:text="${profesor.apellidos}" class="card-text"></strong>
+                <p th:text="${profesor.materia.nombre}" class="card-text"></p>
+            </div>
+        </div>
+        <div class="tarjeta-horarios">
+            <div th:each="clase : ${calendar}">
+                <div class="tarjeta-dia" th:if="${clase.reservado}==false">
+                    <div class="horario">
+                        <strong>Horario: </strong>
+                        <span th:text="${clase.horarios}"></span>
+                    </div>
+                    <div class="btn-reservar">
+                        <a th:href="@{/calendario/reserva?id=}+${clase.id}" class="enlace">Reservar</a>
+                    </div>
+                </div>
+                <div class="tarjeta-dia no-disponible" th:if="${clase.reservado}==true">
+                    <div class="horario">
+                        <strong>Horario: </strong>
+                        <span th:text="${clase.horarios}"></span>
+                    </div>
+                    <div class="btn-reservar">
+                        <a class="enlace enlace-no-disponible">No disponible</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div th:replace="commons/footer :: footer" />
 </body>

@@ -132,42 +132,38 @@
     </script>
     <div th:replace="commons/menu :: menu" />
     <div class="container">
-        <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${notificacion}">
-            <!--Notificación de error-->
-            <div th:if="${notificacion.tipo}==1" class="toast-header error">
-                <!--<div th:if="${notificacion.tipo}==2" class="toast-header correcto"-->
-                <i th:if="${notificacion.tipo}==1" class="fa-solid fa-triangle-exclamation fa-bounce"></i>
-                <i th:if="${notificacion.tipo}==2" class="fa-solid fa-circle-check fa-bounce"></i>
-                <strong th:if="${notificacion.tipo}==1" class="me-auto">Error</strong>
-                <strong th:if="${notificacion.tipo}==2" class="me-auto">Generado</strong>
-                <small>en 5 segundos se cerrará</small>
+
+        <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
+
+            <div th:if="${err}==1" class="toast-header error">
+                <!--Notificación de error-->
+                <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
+                <strong class="me-auto">Error</strong>
+                <small>Se cerrará en 5 segundos</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body" th:text="${notificacion.mensaje}">
+
+            <div th:if="${err}==2" class="toast-header correcto">
+                <!--Notificación de correcto-->
+                <i class="fa-solid fa-circle-check fa-bounce"></i>
+                <strong class="me-auto">Generado</strong>
+                <small>Se cerrará en 5 segundos</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div th:if="${err}==1" class="toast-body" th:text="#{error.generate.agenda}">
+                Hello, world! This is a toast message.
+            </div>
+            <div th:if="${err}==2" class="toast-body" th:text="#{success.generate.agenda}">
                 Hello, world! This is a toast message.
             </div>
         </div>
+
         <h1>Generar Calendario</h1>
         <form th:action="@{/calendario/save}" method="post">
-            <!--<div class="row">
-                <div class="col espaciado">-->
             <div>
                 <label hidden for="id" class="form-label">ID</label>
                 <input type="hidden" class="form-control" id="id" name="id" th:value="${profesor.id}" />
             </div>
-            <!--<div class="tarjeta-profesor">
-                        <div class="profesor">
-                            <strong>Profesor: </strong>
-                            <span th:text="${profesor.nombre} + @{, }"></span>
-                            <span th:text="${profesor.apellidos}"></span>
-                        </div>
-                        <div class="materia">
-                            <strong>Materia: </strong>
-                            <span th:text="${profesor.materia.nombre}"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>-->
             <div class="row">
                 <fieldset>
                     <legend>Tipo</legend>

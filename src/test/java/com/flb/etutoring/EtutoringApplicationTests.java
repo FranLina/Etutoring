@@ -14,8 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.flb.etutoring.models.Calendario;
+import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
 import com.flb.etutoring.services.CalendarioService;
+import com.flb.etutoring.services.TipoService;
 import com.flb.etutoring.services.UsuarioService;
 
 @SpringBootTest
@@ -25,10 +27,45 @@ class EtutoringApplicationTests {
 	UsuarioService uService;
 
 	@Autowired
+	TipoService tService;
+
+	@Autowired
 	CalendarioService cService;
 
 	@Autowired
 	PasswordEncoder encoder;
+
+	@Test
+	void crearUsuarioAdminYPermisos() {
+		Usuario u = new Usuario();
+		u.setId(30);
+		u.setNombre("admin");
+		u.setCorreo("admin@gmail.com");
+		u.setUsername("admin");
+		u.setPassword(encoder.encode("1234"));
+
+		Tipo t1 = new Tipo();
+		t1.setId(1);
+		t1.setNombre("ADMIN");
+		tService.save(t1);
+
+		Tipo t2 = new Tipo();
+		t2.setId(2);
+		t2.setNombre("PROFESOR");
+		tService.save(t2);
+
+		Tipo t3 = new Tipo();
+		t3.setId(3);
+		t3.setNombre("ALUMNO");
+		tService.save(t3);
+
+		List<Tipo> listaPermisos = new ArrayList<>();
+		listaPermisos.add(t1);
+		listaPermisos.add(t2);
+		listaPermisos.add(t3);
+		u.setTipo(listaPermisos);
+		uService.save(u);
+	}
 
 	@Test
 	void crearUsuario() {

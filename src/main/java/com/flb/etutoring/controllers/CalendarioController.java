@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,18 +18,18 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.flb.etutoring.models.Calendario;
+import com.flb.etutoring.models.Clase;
 import com.flb.etutoring.models.Dia;
 import com.flb.etutoring.models.Mes;
 import com.flb.etutoring.models.Notificacion;
 import com.flb.etutoring.models.Usuario;
 import com.flb.etutoring.services.CalendarioService;
+import com.flb.etutoring.services.ClaseService;
 import com.flb.etutoring.services.UsuarioService;
 
 @Controller
@@ -40,10 +42,20 @@ public class CalendarioController {
     @Autowired
     CalendarioService cService;
 
+    @Autowired
+    ClaseService clService;
+
     @GetMapping(value = "/profesor")
     public ModelAndView tabla(@RequestParam(name = "id") int profesor_id,
-            @RequestParam(name = "year", defaultValue = "2023") int year,
-            @RequestParam(name = "month", defaultValue = "5") int month, ModelMap model) {
+            @RequestParam(name = "year", defaultValue = "-1") int year,
+            @RequestParam(name = "month", defaultValue = "-1") int month, ModelMap model) {
+
+        if (year == -1 && month == -1) {
+            LocalDate today = LocalDate.now();
+            year = today.getYear();
+            month = today.getMonthValue();
+        }
+
         ModelAndView modelAndView = new ModelAndView("calendarios/tabla");
 
         String[] meses = { "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre",
@@ -96,14 +108,42 @@ public class CalendarioController {
             @RequestParam(name = "day") int day,
             ModelMap model) {
 
+        Usuario profesor = uService.findById(profesor_id);
+        LocalDate dia = LocalDate.of(year, month, day);
+
+        List<Calendario> c = cService.findByProfesorAndFecha(profesor, Date
+                .from(dia.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+
         ModelAndView modelAndView = new ModelAndView("calendarios/reservar");
+        modelAndView.addObject("calendar", c);
+        modelAndView.addObject("profesor", profesor);
+        return modelAndView;
+    }
+
+    @GetMapping(value = "/reserva")
+    public ModelAndView reservaClase(@RequestParam(name = "id") int clase_id,
+            ModelMap model, HttpSession session) {
+
+        Calendario cal = cService.findById(clase_id);
+
+        Clase claseSeleccionada = new Clase();
+        claseSeleccionada.setFecha(cal.getFecha());
+        claseSeleccionada.setHorarios(cal.getHorarios());
+        claseSeleccionada.setProfesor(cal.getProfesor());
+        claseSeleccionada.setAlumno(new Usuario(Integer.parseInt(session.getAttribute("usuario_id").toString())));
+        claseSeleccionada.setOnline(false);
+        clService.save(claseSeleccionada);
+
+        cal.setReservado(true);
+        cService.update(cal);
+
+        ModelAndView modelAndView = new ModelAndView("redirect:profesor?id=" + cal.getProfesor().getId());
         return modelAndView;
     }
 
     @RequestMapping(value = { "/generarCalendario" })
     public ModelAndView edit(@RequestParam(name = "id", required = true) int id,
-            @RequestParam(name = "notificacion", required = false) Notificacion noti,
-            ModelMap model) {
+            @RequestParam(name = "err", required = false, defaultValue = "0") String err) {
 
         String[] dias = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
         String[] meses = { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septimebre",
@@ -125,7 +165,7 @@ public class CalendarioController {
 
         Usuario u = uService.findById(id);
 
-        modelAndView.addObject("notificacion", noti);
+        modelAndView.addObject("err", err);
         modelAndView.addObject("dias", mapDias);
         modelAndView.addObject("meses", mapMes);
         modelAndView.addObject("profesor", u);
@@ -139,7 +179,7 @@ public class CalendarioController {
             @RequestParam(value = "ck_mes", required = false) int[] ck_meses,
             @RequestParam(value = "ck_horas") int[] ck_horas,
             @RequestParam(value = "fecha_inicio", required = false) String fechaIn,
-            @RequestParam(value = "fecha_final", required = false) String fechaFi, ModelMap model) {
+            @RequestParam(value = "fecha_final", required = false) String fechaFi, Model model) {
 
         LocalDate fechaHoy = LocalDate.now();
 
@@ -226,6 +266,7 @@ public class CalendarioController {
                                                     .toInstant()));
                             calendario.setHorarios(horario);
                             calendario.setProfesor(profesor);
+                            calendario.setReservado(false);
                             cService.save(calendario);
                         }
 
@@ -236,20 +277,9 @@ public class CalendarioController {
 
         }
 
-        String error = "Ha ocurrido un error al generar el calendario, compruebe que ninguna hora coincida con algun calendario existente.";
-        String correcto = "El calendario ha sido generado con exito";
-
-        Notificacion noti = new Notificacion(2, correcto);
-
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("notificacion", noti);
+        modelAndView.addObject("err", 2);
         modelAndView.setViewName("redirect:generarCalendario?id=" + profe_id);
         return modelAndView;
-
-        /*
-         * modelAndView.setViewName("redirect:profesor?id=" + profe_id + "&year=" +
-         * fechaHoy.getYear() + "&month="
-         * + fechaHoy.getMonthValue());
-         */
     }
 }

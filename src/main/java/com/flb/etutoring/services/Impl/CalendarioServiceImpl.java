@@ -1,6 +1,9 @@
 package com.flb.etutoring.services.Impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +42,22 @@ public class CalendarioServiceImpl implements CalendarioService {
     }
 
     @Override
+    public List<Calendario> findByProfesorAndFecha(Usuario profesor, Date fecha) {
+        LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        cal = restTemplate.getForObject(urlWSetutoring + "calendarios/reservar/{id}/{year}/{month}/{day}",
+                Calendario[].class,
+                profesor.getId(), diaSeleccionado.getYear(), diaSeleccionado.getMonthValue(),
+                diaSeleccionado.getDayOfMonth());
+
+        List<Calendario> calendarios = Arrays.asList(cal);
+        return calendarios;
+    }
+
+    @Override
     public Calendario findById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+        Calendario c = restTemplate.getForObject(urlWSetutoring + "calendarios/{id}", Calendario.class, id);
+        return c;
     }
 
     @Override
@@ -53,14 +69,12 @@ public class CalendarioServiceImpl implements CalendarioService {
 
     @Override
     public void update(Calendario calendario) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        restTemplate.put(urlWSetutoring + "calendarios/{id}", calendario, calendario.getId());
     }
 
     @Override
     public void deleteById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+        restTemplate.delete(urlWSetutoring + "calendarios/{id}", id);
     }
 
 }
