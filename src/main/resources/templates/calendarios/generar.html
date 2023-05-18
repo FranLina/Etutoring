@@ -81,18 +81,6 @@
             margin-bottom: 0.5em;
         }
 
-        .notificacion {
-            position: absolute;
-            right: 0;
-        }
-
-        .error {
-            background-color: rgba(255, 0, 0, 0.5);
-        }
-
-        .correcto {
-            background-color: rgba(0, 128, 0, 0.5);
-        }
     </style>
     <script>
 
@@ -137,16 +125,16 @@
 
             <div th:if="${err}==1" class="toast-header error">
                 <!--Notificación de error-->
-                <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
-                <strong class="me-auto">Error</strong>
+                <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
+                <strong class="me-auto"> Error</strong>
                 <small>Se cerrará en 5 segundos</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
 
             <div th:if="${err}==2" class="toast-header correcto">
                 <!--Notificación de correcto-->
-                <i class="fa-solid fa-circle-check fa-bounce"></i>
-                <strong class="me-auto">Generado</strong>
+                <i class="fa-solid fa-circle-check fa-bounce"> </i>
+                <strong class="me-auto"> Generado</strong>
                 <small>Se cerrará en 5 segundos</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>

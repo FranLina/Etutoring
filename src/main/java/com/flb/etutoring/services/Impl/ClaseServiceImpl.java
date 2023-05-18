@@ -39,6 +39,14 @@ public class ClaseServiceImpl implements ClaseService {
     }
 
     @Override
+    public List<Clase> findByProfesor(Usuario profesor) {
+        cla = restTemplate.getForObject(urlWSetutoring + "clases/profesor/{id}", Clase[].class,
+                profesor.getId());
+        List<Clase> clases = Arrays.asList(cla);
+        return clases;
+    }
+
+    @Override
     public Clase findById(int id) {
         Clase c = restTemplate.getForObject(urlWSetutoring + "clases/{id}", Clase.class, id);
         return c;

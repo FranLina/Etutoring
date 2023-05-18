@@ -22,8 +22,7 @@
                     <th>Id</th>
                     <th>Nombre</th>
                     <th>Apellidos</th>
-                    <th>Ciudad</th>
-                    <th>Dirección</th>
+                    <th>Usuario</th>
                     <th>Email</th>
                     <th>Tipo</th>
                     <th>Operaciones</th>
@@ -41,12 +40,7 @@
                         <p th:text="${usuario.apellidos}"></p>
                     </td>
                     <td>
-                        <p th:text="${usuario.ciudad}"></p>
-                    </td>
-                    <td>
-                        <div th:each="direccion : ${usuario.direcciones}">
-                            <p th:text="${direccion.calle}"></p>
-                        </div>
+                        <p th:text="${usuario.username}"></p>
                     </td>
                     <td>
                         <p th:text="${usuario.correo}"></p>

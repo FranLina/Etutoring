@@ -10,6 +10,8 @@ public interface ClaseService {
 
     public List<Clase> findByALumno(Usuario alumno);
 
+    public List<Clase> findByProfesor(Usuario profesor);
+
     public Clase findById(int id);
 
     public Clase save(Clase clase);

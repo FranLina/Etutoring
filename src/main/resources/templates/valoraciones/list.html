@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var div = document.querySelectorAll("div[class='estrellas']");
+
+        for (let i = 0; i < div.length; i++) {
+            var texto = div[i].children[0].textContent;
+            var decimal = texto % 1;
+            texto -= decimal;
+            var resto = 5 - texto;
+            if (decimal >= 0.5) {
+                resto -= 1;
+            }
+            div[i].innerHTML = "";
+            for (let j = 0; j < texto; j++) {
+                div[i].innerHTML += "<i class='fas fa-star color'> </i>";
+            }
+            if (decimal >= 0.5) {
+                div[i].innerHTML += "<i class='fas fa-star-half-alt color'> </i>";
+            }
+            for (let j = 0; j < resto; j++) {
+                div[i].innerHTML += "<i class='far fa-star color'> </i>";
+            }
+        }
+
+        var s = document.querySelector("select");
+        s.addEventListener("change", function () {
+            var f = document.querySelector("#formOpciones");
+            var profe = f.querySelector("input[name='id']");
+
+            var url = window.location.href;
+            var u = url.split("?");
+            window.location.href = u[0] + "?id=" + profe.value + "&sortOrder=" + s.value;
+        });
+    });
+</script>
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+
+        .contenedor {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0 8em;
+        }
+
+        .comentario {
+            background-color: rgba(240, 248, 255, 0.7);
+            margin: 1em;
+            padding: 2em;
+            border-radius: 1em;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            row-gap: 2em;
+            column-gap: 1em;
+        }
+
+        .cuerpo {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .cuerpo-texto {
+            margin-left: 2em;
+        }
+
+        strong {
+            color: rgba(11, 218, 114, 0.85);
+        }
+
+        .estrellas {
+            margin: .5em 0;
+            font-weight: bold;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .color {
+            color: rgba(11, 218, 114, 0.85);
+        }
+
+        .imagen-redonda {
+            width: 5em;
+            height: 5em;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .imagen-redonda img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content-select select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+
+        /* Eliminamos la fecha que por defecto aparece en el desplegable */
+        .content-select select::-ms-expand {
+            display: none;
+        }
+
+        .content-select {
+            width: 10em;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .content-select select {
+            display: inline-block;
+            width: 100%;
+            cursor: pointer;
+            padding: 7px 10px;
+            height: 42px;
+            outline: 0;
+            border: 0;
+            border-radius: 0;
+            background: #ffffff;
+            color: black;
+            font-size: 1em;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        /* 
+Creamos la fecha que aparece a la izquierda del select.
+Realmente este elemento es un cuadrado que sólo tienen
+dos bordes con color y que giramos con transform: rotate(-45deg);
+*/
+        .content-select i {
+            position: absolute;
+            right: 20px;
+            top: calc(50% - 13px);
+            width: 16px;
+            height: 16px;
+            display: block;
+            border-left: 4px solid #2AC176;
+            border-bottom: 4px solid #2AC176;
+            transform: rotate(-45deg);
+            /* Giramos el cuadrado */
+            transition: all 0.25s ease;
+        }
+
+        .content-select:hover i {
+            margin-top: 3px;
+        }
+
+        @media screen and (max-width: 1200px) {
+            .contenedor {
+                margin: 0;
+            }
+        }
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+        <h1>Valoraciones</h1>
+        <form th:action="@{/valoraciones/profesor}" id="formOpciones" method="POST">
+            <input type="hidden" th:value="${profesor_id}" id="id" name="id" />
+            <div class="content-select">
+                <select name="sortOrder">
+                    <div th:each="opcion : ${opciones}">
+                        <div th:if="!(${sortOrder}==${opcion.opcion})">
+                            <option th:value="${opcion.opcion}" th:text="${opcion.nombre}"></option>
+                            </option>
+                        </div>
+                        <div th:unless="!(${sortOrder}==${opcion.opcion})">
+                            <option th:value="${opcion.opcion}" th:text="${opcion.nombre}" selected="true">
+                            </option>
+                        </div>
+                    </div>
+                </select>
+                <i></i>
+            </div>
+        </form>
+
+        <div class="contenedor">
+            <div th:each="combined : ${combinedList}" class="comentario">
+                <div class="cuerpo">
+                    <div class="imagen-redonda">
+                        <img th:src="'data:image/jpeg;base64,' + ${combined.alumno.imageView}" />
+                    </div>
+                    <div class="cuerpo-texto">
+                        <p>
+                            <strong th:text="${combined.alumno.nombre}"></strong>
+                            <strong th:text="${combined.alumno.apellidos}"></strong>
+                        </p>
+                        <label th:text="${combined.valoracion.comentario}"></label>
+                        <div class="estrellas">
+                            <label th:text="${combined.valoracion.puntuacion}"></label>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${combined.valoracion.dias}==0">
+                    <strong>Hoy</strong>
+                </div>
+                <div th:if="${combined.valoracion.dias}==1">
+                    <strong>Hace </strong>
+                    <strong th:text="${combined.valoracion.dias}"></strong>
+                    <strong> día</strong>
+                </div>
+                <div th:if="${combined.valoracion.dias}>1">
+                    <strong>Hace </strong>
+                    <strong th:text="${combined.valoracion.dias}"></strong>
+                    <strong> días</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

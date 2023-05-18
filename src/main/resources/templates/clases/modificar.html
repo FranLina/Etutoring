@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="commons/header :: header" />
+
+<script>
+    $(document).ready(function () {
+        // Obtener el elemento de "toast"
+        var toastEl = $('.toast');
+
+        // Crear el objeto de "toast" con opciones personalizadas
+        if (toastEl) {
+            var toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 5000,
+                animation: true
+            });
+            // Mostrar el "toast"
+            toast.show();
+        }
+    });
+</script>
+
+<body>
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+
+        .espaciado input {
+            margin-bottom: 1em;
+        }
+
+        .row .boton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .boton input,
+        .boton a,
+        .boton button {
+            margin: 4em 1em;
+            width: 16em;
+        }
+
+        .cabecera {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+
+        .contenedor {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            background-color: rgba(0, 128, 0, 0.1);
+            border-radius: 1em;
+            padding: 4em;
+            box-shadow: 2px 2px 2px 1px rgba(0, 128, 0, 0.3);
+        }
+
+        img.profesor {
+            width: 15em;
+            height: 15em;
+        }
+
+        .valoracion {
+            position: relative;
+            overflow: hidden;
+            display: block;
+        }
+
+        .valoracion input {
+            position: absolute;
+            top: -100px;
+        }
+
+        .valoracion label {
+            float: right;
+            color: #c1b8b8;
+            font-size: 30px;
+        }
+
+        .valoracion label:hover,
+        .valoracion label:hover~label,
+        .valoracion input:checked~label {
+            color: rgba(11, 218, 114, 0.85);
+        }
+
+        @media screen and (max-width: 900px) {
+            img.profesor {
+                width: 10em;
+                height: 10em;
+            }
+        }
+    </style>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container">
+
+        <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
+
+            <div th:if="${err}==1" class="toast-header error">
+                <!--Notificación de error-->
+                <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
+                <strong class="me-auto"> Error</strong>
+                <small>Se cerrará en 5 segundos</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${err}==2" class="toast-header correcto">
+                <!--Notificación de correcto-->
+                <i class="fa-solid fa-circle-check fa-bounce"> </i>
+                <strong class="me-auto"> Correcto</strong>
+                <small>Se cerrará en 5 segundos</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div th:if="${err}==1" class="toast-body" th:text="#{error.clase.valoracion}"></div>
+            <div th:if="${err}==2" class="toast-body" th:text="#{success.clase.valoracion}"></div>
+        </div>
+
+        <h1>Clase</h1>
+        <form th:action="@{/clases/update}" method="post">
+            <div class="contenedor">
+                <div>
+                    <div>
+                        <img th:src="'data:image/jpeg;base64,' + ${profesor.imageView}" class="card-img-top profesor" />
+                    </div>
+                    <div>
+                        <strong>Profesor: </strong>
+                        <span th:text="${profesor.nombre}"></span>
+                        <span> </span>
+                        <span th:text="${profesor.apellidos}"></span>
+                    </div>
+                    <div>
+                        <strong>Materia: </strong>
+                        <span th:text="${profesor.materia.nombre}"></span>
+                    </div>
+                    <div>
+                        <strong>Fecha: </strong>
+                        <span th:text="${clase.fecha}"></span>
+                    </div>
+                    <div>
+                        <strong>Horario: </strong>
+                        <span th:text="${clase.horarios}"></span>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <input type="hidden" th:value="${clase.id}" id="clase_id" name="clase_id" />
+                        <input th:if="${clase.valoracion}" type="hidden" th:value="${clase.valoracion.id}"
+                            id="valoracion_id" name="valoracion_id" />
+                        <label for="FormControlTextarea1" class="form-label"><strong>Comentario</strong></label>
+                        <textarea th:if="${valoracion}" class="form-control" id="textAreaComentario"
+                            name="textAreaComentario" rows="5" th:text="${valoracion.comentario}"></textarea>
+                        <textarea th:unless="${valoracion}" class="form-control" id="textAreaComentario"
+                            name="textAreaComentario" rows="5"></textarea>
+                    </div>
+                    <div class="valoracion" th:if="${valoracion}">
+                        <input id="radio1" type="radio" name="estrellas" th:if="${valoracion.puntuacion}==5" value="5"
+                            checked>
+                        <input id="radio1" type="radio" name="estrellas" th:if="${valoracion.puntuacion}!=5" value="5">
+                        <label for="radio1">★</label>
+                        <input id="radio2" type="radio" name="estrellas" th:if="${valoracion.puntuacion}==4" value="4"
+                            checked>
+                        <input id="radio2" type="radio" name="estrellas" th:if="${valoracion.puntuacion}!=4" value="4">
+                        <label for="radio2">★</label>
+                        <input id="radio3" type="radio" name="estrellas" th:if="${valoracion.puntuacion}==3" value="3"
+                            checked>
+                        <input id="radio3" type="radio" name="estrellas" th:if="${valoracion.puntuacion}!=3" value="3">
+                        <label for="radio3">★</label>
+                        <input id="radio4" type="radio" name="estrellas" th:if="${valoracion.puntuacion}==2" value="2"
+                            checked>
+                        <input id="radio4" type="radio" name="estrellas" th:if="${valoracion.puntuacion}!=2" value="2">
+                        <label for="radio4">★</label>
+                        <input id="radio5" type="radio" name="estrellas" th:if="${valoracion.puntuacion}==1" value="1"
+                            checked>
+                        <input id="radio5" type="radio" name="estrellas" th:if="${valoracion.puntuacion}!=1" value="1">
+                        <label for="radio5">★</label>
+                    </div>
+                    <div class="valoracion" th:unless="${valoracion}">
+                        <input id="radio1" type="radio" name="estrellas" value="5">
+                        <label for="radio1">★</label>
+                        <input id="radio2" type="radio" name="estrellas" value="4">
+                        <label for="radio2">★</label>
+                        <input id="radio3" type="radio" name="estrellas" value="3">
+                        <label for="radio3">★</label>
+                        <input id="radio4" type="radio" name="estrellas" value="2">
+                        <label for="radio4">★</label>
+                        <input id="radio5" type="radio" name="estrellas" value="1">
+                        <label for="radio5">★</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="boton">
+                    <a th:href="@{/clases/usuario?id=}+${session.usuario_id}" class="btn btn-outline-warning"
+                        id="btnVolver">Volver</a>
+                    <input class="btn btn-outline-success" type="submit" id="btnEnviar" value="Valorar Clase">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
+                        Cancelar Clase
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header cabecera">
+                    <h5 class="modal-title" id="exampleModalLabel">Cancelar Clase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estas seguro de que quire cancelar esta clase?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Volver</button>
+                    <a th:href="@{/clases/cancelar?id=}+${clase.id}" class="btn btn-danger" id="btnBorrar">Confirmar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

@@ -1,11 +1,31 @@
 package com.flb.etutoring.models;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
 public class Valoracion {
     private int id;
     private Clase claseValorada;
     private Usuario usuarioValorador;
     private String comentario;
     private int puntuacion;
+    private Date fechaValoracion;
+
+    public Date getFechaValoracion() {
+        return fechaValoracion;
+    }
+
+    public void setFechaValoracion(Date fechaValoracion) {
+        this.fechaValoracion = fechaValoracion;
+    }
+
+    public long getDias() {
+        LocalDate hoy = LocalDate.now();
+        LocalDate fechaV = fechaValoracion.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return ChronoUnit.DAYS.between(fechaV, hoy);
+    }
 
     public Valoracion() {
     }

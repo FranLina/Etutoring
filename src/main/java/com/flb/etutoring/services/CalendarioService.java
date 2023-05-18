@@ -11,6 +11,8 @@ public interface CalendarioService {
 
     public Calendario findById(int id);
 
+    public Calendario findByFechaAndHorariosAndProfesor(Date fecha, String horarios,Usuario profesor);
+
     public List<Calendario> findByProfesor(Usuario usuario);
 
     public List<Calendario> findByProfesorAndFecha(Usuario profesor, Date fecha);

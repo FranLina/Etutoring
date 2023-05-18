@@ -1,0 +1,12 @@
+.notificacion {
+  position: absolute;
+  right: 0;
+}
+
+.error {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.correcto {
+  background-color: rgba(0, 128, 0, 0.5);
+}
