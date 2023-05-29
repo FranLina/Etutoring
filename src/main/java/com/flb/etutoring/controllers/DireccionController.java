@@ -31,12 +31,17 @@ public class DireccionController {
 
     @PostMapping(value = "/update")
     public ModelAndView update(Direccion direccion) {
-
-        Direccion dir = dService.findById(direccion.getId());
         ModelAndView modelAndView = new ModelAndView();
-        direccion.setUsuario(new Usuario(dir.getUsuario().getId()));
-        dService.update(direccion);
-
+        String err = "0";
+        try {
+            Direccion dir = dService.findById(direccion.getId());
+            direccion.setUsuario(new Usuario(dir.getUsuario().getId()));
+            dService.update(direccion);
+            err = "4";
+        } catch (Exception e) {
+            err = "3";
+        }
+        modelAndView.addObject("err", err);
         modelAndView.setViewName("redirect:/usuarios/modificar?id=" + direccion.getUsuario().getId());
         return modelAndView;
     }
@@ -53,9 +58,16 @@ public class DireccionController {
     public ModelAndView save(Direccion direccion, @RequestParam(value = "id_usuario") int id_usuario) {
 
         ModelAndView modelAndView = new ModelAndView();
-        direccion.setUsuario(new Usuario(id_usuario));
-        Direccion dir = dService.save(direccion);
-
+        String err = "0";
+        Direccion dir = new Direccion();
+        try {
+            direccion.setUsuario(new Usuario(id_usuario));
+            dir = dService.save(direccion);
+            err = "4";
+        } catch (Exception e) {
+            err = "3";
+        }
+        modelAndView.addObject("err", err);
         modelAndView.setViewName("redirect:/usuarios/modificar?id=" + dir.getUsuario().getId());
         return modelAndView;
     }

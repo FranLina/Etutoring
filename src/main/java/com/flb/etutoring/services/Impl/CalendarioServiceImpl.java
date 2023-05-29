@@ -42,6 +42,14 @@ public class CalendarioServiceImpl implements CalendarioService {
     }
 
     @Override
+    public List<Calendario> findByProfesorAndReservado(Usuario profesor, Boolean reservado) {
+        cal = restTemplate.getForObject(urlWSetutoring + "calendarios/profesor/{id}/{reservado}", Calendario[].class,
+                profesor.getId(), reservado);
+        List<Calendario> calendarios = Arrays.asList(cal);
+        return calendarios;
+    }
+
+    @Override
     public List<Calendario> findByProfesorAndFecha(Usuario profesor, Date fecha) {
         LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 

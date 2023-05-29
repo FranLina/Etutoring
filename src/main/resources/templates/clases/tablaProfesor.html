@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div th:replace="commons/header :: header" />
+    <style>
+        .tabla {
+            margin: 3em 0;
+        }
+
+        .calendar-month {
+            text-align: center;
+        }
+
+        .mes {
+            font-weight: bold;
+            font-size: 2vw;
+        }
+
+        .enlace {
+            text-decoration: none;
+            color: rgb(11, 218, 115);
+            padding: .2em .3em;
+        }
+
+        .enlace:hover {
+            background-color: aliceblue;
+            border-radius: .5em;
+        }
+
+        .reservado {
+            color: red;
+        }
+
+        .botones-month {
+            color: rgba(11, 218, 114, 0.85);
+            margin: 0 .5em;
+        }
+
+        form {
+            margin-top: 1em;
+        }
+
+        h1 {
+            margin-top: 1em;
+            text-align: center;
+        }
+
+        @media screen and (max-width: 800px) {
+            .textoHorario {
+                font-size: 2vw;
+            }
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            // Obtener el elemento de "toast"
+            var toastEl = $('.toast');
+
+            // Crear el objeto de "toast" con opciones personalizadas
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000,
+                    animation: true
+                });
+                // Mostrar el "toast"
+                toast.show();
+            }
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            var s = document.querySelector("select");
+            s.addEventListener("change", function () {
+                var f = document.querySelector("#formOpciones");
+                var profe = f.querySelector("input[name='id']");
+                var year = f.querySelector("input[name='year']");
+                var month = f.querySelector("input[name='month']");
+
+                var url = window.location.href;
+                var u = url.split("?");
+                window.location.href = u[0] + "?id=" + profe.value + "&year=" + year.value + "&month=" + month.value + "&sortOrder=" + s.value;
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+    <div th:replace="commons/menu :: menu" />
+    <div class="container-md">
+        <h1>Clases Particulares</h1>
+
+        <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
+
+            <div th:if="${err}==1" class="toast-header error">
+                <!--Notificación de error-->
+                <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
+                <strong class="me-auto"> Error</strong>
+                <small>Se cerrará en 5 segundos</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${err}==2" class="toast-header correcto">
+                <!--Notificación de correcto-->
+                <i class="fa-solid fa-circle-check fa-bounce"> </i>
+                <strong class="me-auto"> Correcto</strong>
+                <small>Se cerrará en 5 segundos</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div th:if="${err}==1" class="toast-body" th:text="#{error.clase.cancelar}"></div>
+            <div th:if="${err}==2" class="toast-body" th:text="#{success.clase.cancelar}"></div>
+        </div>
+
+        <form th:action="@{/clases/profesor}" id="formOpciones" method="POST">
+            <input type="hidden" th:value="${usuario.id}" id="id" name="id" />
+            <input type="hidden" th:value="${year}" id="year" name="year" />
+            <input type="hidden" th:value="${month}" id="month" name="month" />
+            <div class="content-select">
+                <select name="sortOrder">
+                    <div th:each="opcion : ${opciones}">
+                        <div th:if="!(${sortOrder}==${opcion.opcion})">
+                            <option th:value="${opcion.opcion}" th:text="${opcion.nombre}"></option>
+                            </option>
+                        </div>
+                        <div th:unless="!(${sortOrder}==${opcion.opcion})">
+                            <option th:value="${opcion.opcion}" th:text="${opcion.nombre}" selected="true">
+                            </option>
+                        </div>
+                    </div>
+                </select>
+                <i></i>
+            </div>
+        </form>
+
+        <table class="tabla calendar table table-bordered table-condensed">
+            <thead>
+                <tr>
+                    <th colspan="8" class="calendar-month">
+                        <a
+                            th:href="@{/clases/profesor?id=}+${usuario.id}+@{&year=}+${year}+@{&month=}+${month-1}+@{&sortOrder=}+${sortOrder}"><i
+                                class="botones-month fa-solid fa-circle-left fa-2xl"></i></a>
+                        <span class="mes" th:text="${date} + ${year}"></span>
+                        <a
+                            th:href="@{/clases/profesor?id=}+${usuario.id}+@{&year=}+${year}+@{&month=}+${month+1}+@{&sortOrder=}+${sortOrder}"><i
+                                class="botones-month fa-solid fa-circle-right fa-2xl"></i></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="w-13">Lunes</th>
+                    <th class="w-13">Martes</th>
+                    <th class="w-13">Miércoles</th>
+                    <th class="w-13">Jueves</th>
+                    <th class="w-13">Viernes</th>
+                    <th class="w-13">Sábado</th>
+                    <th class="w-13">Domingo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="week : ${weeks}">
+                    <td th:each="day : ${week}" class="w-13">
+                        <span th:text="${day}"></span>
+                        <div th:each="clase : ${clases}"
+                            th:if="${clase.localFecha.getDayOfMonth}==${day} and ${clase.localFecha.getMonthValue}==${month} and ${clase.localFecha.getYear}==${year}">
+                            <a class="textoHorario enlace reservado" th:if="${clase.reservado}==true"
+                                th:href="@{/clases/profesor/modificar?id=}+${session.usuario_id}+@{&year=}+${year}+@{&month=}+${month}+@{&day=}+${day}"
+                                th:text="${clase.horarios}"></a>
+                            <a class="textoHorario enlace" th:unless="${clase.reservado}==true"
+                                th:href="@{/clases/profesor/modificar?id=}+${session.usuario_id}+@{&year=}+${year}+@{&month=}+${month}+@{&day=}+${day}"
+                                th:text="${clase.horarios}"></a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>

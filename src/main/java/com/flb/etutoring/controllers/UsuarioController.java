@@ -66,12 +66,24 @@ public class UsuarioController {
     }
 
     @GetMapping(value = "/listProfesor")
-    public ModelAndView listProfesores(Model model) {
-        List<Usuario> usuarios = uService.findAll();
+    public ModelAndView listProfesores(
+            @RequestParam(name = "materia_id", required = false, defaultValue = "-1") int materia_id,
+            Model model) {
+        List<Usuario> usuarios = new ArrayList<>();
+        if (materia_id == -1) {
+            usuarios = uService.findAll();
+        } else {
+            usuarios = uService.findByMateria(materia_id);
+        }
+
+        List<Materia> materias = new ArrayList<>();
+        materias.add(new Materia(-1, "Todos"));
+        materias.addAll(mService.findAll());
         LocalDate fechaInicio = LocalDate.now();
         List<CustomObject> combinedList = new ArrayList<>();
 
         for (Usuario usuario : usuarios) {
+            usuario.setDirecciones(dService.findByUsuario(usuario));
             if (usuario.getMateria() != null) {
                 List<Clase> listadoClases = clService.findByProfesor(usuario);
                 double sum = 0, total = 0;
@@ -87,6 +99,8 @@ public class UsuarioController {
 
         ModelAndView modelAndView = new ModelAndView("usuarios/listProfesor");
         modelAndView.addObject("combinedList", combinedList);
+        modelAndView.addObject("materias", materias);
+        modelAndView.addObject("materia_id", materia_id);
         modelAndView.addObject("fecha", fechaInicio);
         return modelAndView;
     }

@@ -1,6 +1,9 @@
 package com.flb.etutoring.services.Impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,17 @@ public class ClaseServiceImpl implements ClaseService {
                 profesor.getId());
         List<Clase> clases = Arrays.asList(cla);
         return clases;
+    }
+
+    @Override
+    public Clase findByFechaAndHorariosAndProfesor(Date fecha, String horarios, Usuario profesor) {
+        LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        Clase c = restTemplate.getForObject(
+                urlWSetutoring + "clases/cancelar/{year}/{month}/{day}/{horarios}/{id}",
+                Clase.class, diaSeleccionado.getYear(), diaSeleccionado.getMonthValue(),
+                diaSeleccionado.getDayOfMonth(), horarios, profesor.getId());
+        return c;
     }
 
     @Override

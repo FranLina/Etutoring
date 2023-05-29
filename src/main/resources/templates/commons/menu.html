@@ -15,13 +15,16 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link user" aria-current="page" th:href="@{/usuarios/listProfesor}"
-                sec:authorize="hasAnyAuthority('ADMIN','PROFESOR','ALUMNO')"><i class="fa-solid fa-chalkboard-user"> </i> Clases</a>
+                sec:authorize="hasAnyAuthority('ADMIN','ALUMNO')"><i class="fa-solid fa-chalkboard-user"> </i> Clases</a>
             </li>
             <li class="nav-item">
               <a class="nav-link user" th:href="@{/usuarios/list}" sec:authorize="hasAnyAuthority('ADMIN')"><i class="fa-solid fa-users-line"> </i> Usuarios</a>
             </li>
             <li class="nav-item">
               <a class="nav-link user" th:href="@{/materias/list}" sec:authorize="hasAnyAuthority('ADMIN')"><i class="fa-solid fa-book-bookmark"> </i> Materias</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link user" th:href="@{/clases/profesor?id=}+${session.usuario_id}" sec:authorize="hasAnyAuthority('ADMIN','PROFESOR')"><i class="fa fa-calendar-days"> </i> Mi Calendario</a>
             </li>
             <li class="nav-item">
               <a class="nav-link user" th:href="@{/clases/usuario?id=}+${session.usuario_id}" sec:authorize="hasAnyAuthority('ADMIN','ALUMNO')"><i class="fa fa-calendar-days"> </i> Mi Calendario</a>

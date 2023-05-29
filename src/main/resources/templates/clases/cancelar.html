@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div th:replace="commons/header :: header" />
+    <style>
+        .contenedor {
+            margin: 2em 4em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            row-gap: 2em;
+            column-gap: 2em;
+        }
+
+        .tarjeta-horarios {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+
+        }
+
+        .tarjeta-dia {
+            margin-top: 3em;
+            background-color: rgba(11, 218, 114, 0.85);
+            border-radius: 1em;
+            padding: 1em;
+            color: aliceblue;
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0 auto;
+            width: 50%;
+        }
+
+        .no-disponible {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+
+        .enlace {
+            display: block;
+            width: 35%;
+            height: 100%;
+            text-decoration: none;
+            background-color: aliceblue;
+            padding: .5em 1em;
+            margin: .5em auto;
+            border-radius: .7em;
+            color: rgb(11, 218, 115);
+        }
+
+        .enlace:hover {
+            background-color: rgba(240, 248, 255, 0.9);
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+            color: rgb(11, 218, 115, 0.5);
+        }
+
+        .enlace.enlace-no-disponible:hover {
+            background-color: rgba(240, 248, 255, 0.9);
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.4);
+            color: rgba(255, 0, 0, 0.5);
+        }
+
+        .enlace-no-disponible {
+            color: rgba(255, 0, 0, 0.7);
+        }
+
+        .boton {
+            display: flex;
+            justify-content: center;
+        }
+
+        .boton input,
+        .boton a {
+            margin: 4em 1em 0 1em;
+            width: 16em;
+        }
+
+        @media screen and (max-width: 1100px) {
+            .contenedor {
+                margin: 2em 0;
+            }
+
+            .enlace {
+                width: 75%;
+            }
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            // Obtener el elemento de "toast"
+            var toastEl = $('.toast');
+
+            // Crear el objeto de "toast" con opciones personalizadas
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000,
+                    animation: true
+                });
+                // Mostrar el "toast"
+                toast.show();
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div th:replace="commons/menu :: menu" />
+
+    <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
+
+        <div th:if="${err}==1" class="toast-header error">
+            <!--Notificación de error-->
+            <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
+            <strong class="me-auto"> Error</strong>
+            <small>Se cerrará en 5 segundos</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${err}==2" class="toast-header correcto">
+            <!--Notificación de correcto-->
+            <i class="fa-solid fa-circle-check fa-bounce"> </i>
+            <strong class="me-auto"> Correcto</strong>
+            <small>Se cerrará en 5 segundos</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div th:if="${err}==1" class="toast-body" th:text="#{error.clase.cancelar}"></div>
+        <div th:if="${err}==2" class="toast-body" th:text="#{success.clase.cancelar}"></div>
+    </div>
+
+    <div class="contenedor">
+        <div class="tarjeta-horarios" th:each="clase : ${clases}">
+            <div class="tarjeta-dia" th:if="${clase.reservado}==false">
+                <div class="fecha">
+                    <strong>Fecha: </strong>
+                    <span th:text="${clase.fecha}"></span>
+                </div>
+                <div class="horario">
+                    <strong>Horario: </strong>
+                    <span th:text="${clase.horarios}"></span>
+                </div>
+                <div class="reservado">
+                    <strong>Disponible</strong>
+                </div>
+                <div class="btn-reservar">
+                    <a th:href="@{/clases/profesor/cancelar?id=}+${clase.id}" class="btn enlace">Cancelar clase</a>
+                </div>
+            </div>
+            <div class="tarjeta-dia no-disponible" th:if="${clase.reservado}==true">
+                <div class="fecha">
+                    <strong>Fecha: </strong>
+                    <span th:text="${clase.fecha}"></span>
+                </div>
+                <div class="horario">
+                    <strong>Horario: </strong>
+                    <span th:text="${clase.horarios}"></span>
+                </div>
+                <div class="reservado">
+                    <strong>Reservado</strong>
+                </div>
+                <div class="btn-reservar">
+                    <a th:href="@{/clases/profesor/cancelar?id=}+${clase.id}" class="btn enlace enlace-no-disponible">Cancelar clase</a>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="boton">
+                <a th:href="@{/clases/profesor?id=}+${usuario.id}+@{&year=}+${year}+@{&month=}+${month}"
+                    class="btn btn-outline-warning">Volver</a>
+                <a th:href="@{/clases/profesor/cancelar?id=}+${usuario.id}" class="btn btn-outline-danger">Cancelar
+                    Todo</a>
+            </div>
+        </div>
+    </div>
+    <div th:replace="commons/footer :: footer" />
+</body>
+
+</html>
