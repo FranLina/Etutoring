@@ -19,13 +19,19 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.flb.etutoring.models.Clase;
+import com.flb.etutoring.models.Direccion;
 import com.flb.etutoring.models.Materia;
+import com.flb.etutoring.models.Municipios;
+import com.flb.etutoring.models.Provincias;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
+import com.flb.etutoring.models.Ccaa;
 import com.flb.etutoring.services.CalendarioService;
 import com.flb.etutoring.services.ClaseService;
 import com.flb.etutoring.services.DireccionService;
 import com.flb.etutoring.services.MateriaService;
+import com.flb.etutoring.services.MunicipiosService;
+import com.flb.etutoring.services.ProvinciasService;
 import com.flb.etutoring.services.TipoService;
 import com.flb.etutoring.services.UsuarioService;
 import com.flb.etutoring.utils.CustomObject;
@@ -51,6 +57,12 @@ public class UsuarioController {
     @Autowired
     ClaseService clService;
 
+    @Autowired
+    ProvinciasService pService;
+
+    @Autowired
+    MunicipiosService muniService;
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping(value = "/list")
     public ModelAndView list(Model model, HttpSession session) {
@@ -68,13 +80,33 @@ public class UsuarioController {
     @GetMapping(value = "/listProfesor")
     public ModelAndView listProfesores(
             @RequestParam(name = "materia_id", required = false, defaultValue = "-1") int materia_id,
+            @RequestParam(name = "provincia_id", required = false, defaultValue = "-1") int provincia_id,
+            @RequestParam(name = "municipios_id", required = false, defaultValue = "-1") int municipios_id,
             Model model) {
         List<Usuario> usuarios = new ArrayList<>();
+        List<Usuario> usuariosAux = new ArrayList<>();
         if (materia_id == -1) {
             usuarios = uService.findAll();
         } else {
             usuarios = uService.findByMateria(materia_id);
         }
+        if (municipios_id != -1) {
+            for (Usuario u : usuarios) {
+                if (u.getMunicipio() != null)
+                    if (u.getMunicipio().getIdMunicipio() == municipios_id) {
+                        usuariosAux.add(u);
+                    }
+            }
+            usuarios = usuariosAux;
+        }
+
+        List<Provincias> provincias = new ArrayList<>();
+        provincias.add(new Provincias(-1, new Ccaa(), "Sin Seleccionar"));
+        provincias.addAll(pService.findAll());
+
+        List<Municipios> municipios = new ArrayList<>();
+        // municipios.addAll(muniService.findByProvincia(new Provincias(23, null,
+        // null)));
 
         List<Materia> materias = new ArrayList<>();
         materias.add(new Materia(-1, "Todos"));
@@ -100,7 +132,11 @@ public class UsuarioController {
         ModelAndView modelAndView = new ModelAndView("usuarios/listProfesor");
         modelAndView.addObject("combinedList", combinedList);
         modelAndView.addObject("materias", materias);
+        modelAndView.addObject("provincias", provincias);
+        modelAndView.addObject("municipios", municipios);
         modelAndView.addObject("materia_id", materia_id);
+        modelAndView.addObject("provincia_id", provincia_id);
+        modelAndView.addObject("municipios_id", municipios_id);
         modelAndView.addObject("fecha", fechaInicio);
         return modelAndView;
     }
@@ -112,6 +148,14 @@ public class UsuarioController {
 
         Usuario u = uService.findById(id);
         u.setDirecciones(dService.findByUsuario(u));
+
+        List<Provincias> provincias = new ArrayList<>();
+        provincias.add(new Provincias(-1, new Ccaa(), "Sin Seleccionar"));
+        provincias.addAll(pService.findAll());
+
+        List<Municipios> municipios = new ArrayList<>();
+        if (u.getMunicipio() != null)
+            municipios.addAll(muniService.findByProvincia(u.getMunicipio().getProvincia()));
 
         List<Tipo> tipos = tService.findAll();
         for (Tipo t : tipos) {
@@ -133,13 +177,17 @@ public class UsuarioController {
         modelAndView.addObject("isProfesor", isProfesor);
         modelAndView.addObject("materias", mService.findAll());
         modelAndView.addObject("tipos", tipos);
+        modelAndView.addObject("provincias", provincias);
+        modelAndView.addObject("municipios", municipios);
         modelAndView.setViewName("usuarios/edit");
         return modelAndView;
     }
 
     @PostMapping(value = "/update")
-    public ModelAndView update(Usuario usuario,
+    public ModelAndView update(Usuario usuario, Direccion direccion,
             @RequestParam(value = "ck_tipos", required = false) int[] ck_tipos,
+            @RequestParam(value = "usuario_id", required = false, defaultValue = "0") int usuario_id,
+            @RequestParam(value = "municipio_id", required = false, defaultValue = "0") int municipio_id,
             @RequestParam(value = "materia_profe", required = false, defaultValue = "0") int materia_id,
             @RequestParam("file") MultipartFile imagen)
             throws IOException {
@@ -148,10 +196,13 @@ public class UsuarioController {
 
         String err = "0";
         try {
-            Usuario u = uService.findById(usuario.getId());
+            Usuario u = uService.findById(usuario_id);
+            usuario.setId(u.getId());
             usuario.setUsername(u.getUsername());
             usuario.setPassword(u.getPassword());
             usuario.setFotoPerfil(imagen.getBytes());
+            if (municipio_id != 0)
+                usuario.setMunicipio(new Municipios(municipio_id));
 
             if (ck_tipos != null) {
                 List<Tipo> tipos = usuario.getTipo();
@@ -175,9 +226,18 @@ public class UsuarioController {
             }
 
             uService.update(usuario);
+
             err = "2";
         } catch (Exception e) {
             err = "1";
+        }
+        try {
+            if (direccion != null) {
+                direccion.setUsuario(usuario);
+                dService.update(direccion);
+            }
+        } catch (Exception e) {
+            err = "3";
         }
 
         modelAndView.addObject("err", err);

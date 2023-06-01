@@ -73,7 +73,6 @@ class EtutoringApplicationTests {
 		u.setId(30);
 		u.setNombre("Maria");
 		u.setApellidos("Lopéz Arance");
-		u.setCiudad("Bailén");
 		u.setCorreo("maria@gmail.com");
 		u.setUsername("maria");
 		u.setPassword(encoder.encode("1234"));

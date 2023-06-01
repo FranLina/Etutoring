@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.google.maps.GeoApiContext;
+/*import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
-import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.GeocodingResult;*/
 
 @Controller
 @RequestMapping("mapas")

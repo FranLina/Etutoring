@@ -15,6 +15,8 @@ public interface ClaseService {
 
     public Clase findByFechaAndHorariosAndProfesor(Date fecha, String horarios, Usuario profesor);
 
+    public List<Clase> findByProfesorAndFecha(Usuario profesor, Date fecha);
+
     public Clase findById(int id);
 
     public Clase save(Clase clase);

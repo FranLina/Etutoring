@@ -26,20 +26,80 @@
             }
         }
 
-        var s = document.querySelector("select");
-        s.addEventListener("change", function () {
+        var sMateria = document.querySelector("select[name='materia_id']");
+        var sProvincia = document.querySelector("select[name='provincia_id']");
+        var sMunicipio = document.querySelector("select[name='municipio_id']");
+
+        if (sProvincia.value != -1)
+            cargaMunicipios();
+
+        sMateria.addEventListener("change", function () {
             var f = document.querySelector("#formOpcionesProfesor");
 
             var url = window.location.href;
             var u = url.split("?");
-            window.location.href = u[0] + "?materia_id=" + s.value;
+            window.location.href = u[0] + "?materia_id=" + sMateria.value + "&provincia_id=" + sProvincia.value + "&municipios_id=" + sMunicipio.value;
         });
+
+        sMunicipio.addEventListener("change", function () {
+            var f = document.querySelector("#formOpcionesProfesor");
+
+            var url = window.location.href;
+            var u = url.split("?");
+            window.location.href = u[0] + "?materia_id=" + sMateria.value + "&provincia_id=" + sProvincia.value + "&municipios_id=" + sMunicipio.value;
+        });
+
+        sProvincia.addEventListener("change", function () {
+            cargaMunicipios();
+        })
+
+        function cargaMunicipios() {
+            $.ajax({
+                url: 'http://localhost:9091/ws_etutoring/municipios/provincia/' + sProvincia.value,
+                type: 'GET',
+                success: function (response) {
+                    if (response.length > 0)
+                        sMunicipio.disabled = false;
+                    else
+                        sMunicipio.disabled = true;
+                    sMunicipio.textContent = "";
+                    var url = window.location.href;
+                    var url2 = url.split("=");
+                    response.forEach(function (element) {
+                        var op = document.createElement("option");
+                        op.value = element.idMunicipio;
+                        op.textContent = element.municipio;
+                        if (op.value == url2[url2.length - 1]) {
+                            op.selected = true;
+                        }
+                        sMunicipio.appendChild(op);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
     });
+
+
 
 </script>
 
 <body>
     <style>
+        .formulario {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            row-gap: 2em;
+        }
+
+        .formulario div {
+            display: inline;
+        }
+
         .contenedor {
             display: flex;
             flex-direction: row;
@@ -141,6 +201,11 @@
             text-align: center;
         }
 
+
+        .content-select select:disabled {
+            background-color: rgba(128, 128, 128, 0.233);
+        }
+
         @media screen and (max-width: 1150px) {
             .contenedor {
                 flex-direction: column-reverse;
@@ -148,6 +213,13 @@
 
             .profesor {
                 margin: 1em 0;
+            }
+
+            .formulario {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                column-gap: .5em;
             }
         }
 
@@ -157,21 +229,60 @@
     <div th:replace="commons/menu :: menu" />
     <div class="container">
         <h1>Clases Particulares</h1>
-        <form th:action="@{/usuarios/listProfesor}" id="formOpcionesProfesor" method="POST">
-            <div class="content-select">
-                <select name="materia_id">
-                    <div th:each="materia : ${materias}">
-                        <div th:if="!(${materia_id}==${materia.id})">
-                            <option th:value="${materia.id}" th:text="${materia.nombre}"></option>
-                            </option>
+        <form th:action="@{/usuarios/listProfesor}" id="formOpcionesProfesor" class="formulario" method="POST">
+            <div>
+                Filtrado por provincias:
+                <div class="content-select">
+                    <select name="provincia_id">
+                        <div th:each="provincia : ${provincias}">
+                            <div th:if="!(${provincia_id}==${provincia.idProvincia})">
+                                <option th:value="${provincia.idProvincia}" th:text="${provincia.provincia}"></option>
+                            </div>
+                            <div th:unless="!(${provincia_id}==${provincia.idProvincia})">
+                                <option th:value="${provincia.idProvincia}" th:text="${provincia.provincia}"
+                                    selected="true">
+                                </option>
+                            </div>
                         </div>
-                        <div th:unless="!(${materia_id}==${materia.id})">
-                            <option th:value="${materia.id}" th:text="${materia.nombre}" selected="true">
-                            </option>
+                    </select>
+                    <i></i>
+                </div>
+            </div>
+            <div>
+                Filtrado por municipios:
+                <div class="content-select">
+                    <select name="municipio_id" disabled>
+                        <div th:each="municipios : ${municipios}">
+                            <div th:if="!(${municipios_id}==${municipios.idMunicipio})">
+                                <option th:value="${municipios.idMunicipio}" th:text="${municipios.municipio}"></option>
+                            </div>
+                            <div th:unless="!(${municipios_id}==${municipios.idMunicipio})">
+                                <option th:value="${municipios.idMunicipio}" th:text="${municipios.municipio}"
+                                    selected="true">
+                                </option>
+                            </div>
                         </div>
-                    </div>
-                </select>
-                <i></i>
+                    </select>
+                    <i></i>
+                </div>
+            </div>
+            <div>
+                Filtrado por materia:
+                <div class="content-select">
+                    <select name="materia_id">
+                        <div th:each="materia : ${materias}">
+                            <div th:if="!(${materia_id}==${materia.id})">
+                                <option th:value="${materia.id}" th:text="${materia.nombre}"></option>
+                                </option>
+                            </div>
+                            <div th:unless="!(${materia_id}==${materia.id})">
+                                <option th:value="${materia.id}" th:text="${materia.nombre}" selected="true">
+                                </option>
+                            </div>
+                        </div>
+                    </select>
+                    <i></i>
+                </div>
             </div>
         </form>
         <div class="contenedor">
@@ -188,7 +299,7 @@
                                     <strong th:text="${combined.profesor.apellidos}" class="card-text"></strong>
                                 </p>
                                 <label th:text="${combined.profesor.materia.nombre}" class="card-text"></label>
-                                <p th:text="${combined.profesor.ciudad}" class="card-text"></p>
+                                <p th:text="${combined.profesor.municipio.municipio}" th:if="${combined.profesor.municipio}" class="card-text"></p>
                                 <div class="direcciones" th:if="${combined.profesor.direcciones}"
                                     th:each="direccion : ${combined.profesor.direcciones}">
                                     <label hidden th:text="${direccion.latitud}"></label>

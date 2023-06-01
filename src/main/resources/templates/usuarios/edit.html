@@ -19,36 +19,68 @@
             toast.show();
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var sProvincia = document.querySelector("select[name='provincia_id']");
+        var sMunicipio = document.querySelector("select[name='municipio_id']");
+        var iMunicipio = document.querySelector("input[name='idMunicipio']");
+
+
+        if (sProvincia.value != -1)
+            cargaMunicipios();
+
+        sProvincia.addEventListener("change", function () {
+            cargaMunicipios();
+        })
+
+        function cargaMunicipios() {
+            $.ajax({
+                url: 'http://localhost:9091/ws_etutoring/municipios/provincia/' + sProvincia.value,
+                type: 'GET',
+                success: function (response) {
+                    if (response.length > 0)
+                        sMunicipio.disabled = false;
+                    else
+                        sMunicipio.disabled = true;
+                    sMunicipio.textContent = "";
+                    response.forEach(function (element) {
+                        var op = document.createElement("option");
+                        op.value = element.idMunicipio;
+                        op.textContent = element.municipio;
+                        if (iMunicipio)
+                            if (op.value == iMunicipio.value) {
+                                op.selected = true;
+                            }
+                        sMunicipio.appendChild(op);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+    });
 </script>
 
 <body>
     <style type="text/css">
         h1 {
             text-align: center;
-            margin-bottom: 2em;
-        }
-
-        .foto {
-            width: 150px;
-            height: 100px;
-            margin: auto;
-            margin-bottom: 3em;
-        }
-
-        .espaciado input {
             margin-bottom: 1em;
+        }
+
+        label {
+            margin-top: 1em;
+        }
+
+        .tipo {
+            margin-top: 0;
         }
 
         .direccion {
             margin-top: 1em;
-        }
-
-        .enlaces label {
-            width: 12em;
-        }
-
-        .row {
-            margin-top: 4em;
         }
 
         .row .boton {
@@ -58,13 +90,30 @@
 
         .boton input,
         .boton a {
-            margin: 4em 1em 0 1em;
+            margin: 2em 1em 0 1em;
             width: 16em;
+        }
+
+        .foto>input {
+            display: block;
+        }
+
+        .enlaces button {
+            margin-top: 1em;
         }
 
         .foto-perfil {
             width: 10em;
             height: 10em;
+        }
+
+        .cabecera {
+            background-color: rgba(11, 218, 114, 0.4)
+        }
+
+
+        .content-select select:disabled {
+            background-color: rgba(128, 128, 128, 0.233);
         }
     </style>
     <div th:replace="commons/menu :: menu" />
@@ -93,6 +142,88 @@
             <div th:if="${err}==4" class="toast-body" th:text="#{success.usuario.direccion}"></div>
         </div>
 
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header cabecera">
+                        <h5 class="modal-title" id="exampleModalLabel">Selecciones su dirección</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="googleMap" style="width:100%;height:500px;"></div>
+
+                        <script>
+                            var map;
+                            var marker = null;
+                            var latitud, altitud;
+
+                            document.addEventListener("DOMContentLoaded", function () {
+                                var inputLat = document.querySelector("#latitud");
+                                var inputAlt = document.querySelector("#altitud");
+
+                                marker = new google.maps.Marker({
+                                    position: { lat: parseFloat(inputLat.value), lng: parseFloat(inputAlt.value) },
+                                    map: map,
+                                    title: "Ubicación Seleccionada",
+                                })
+
+                                var btnConfirmar = document.querySelector("#btnConfirmar");
+                                btnConfirmar.addEventListener("click", function () {
+                                    var inputLat = document.querySelector("#latitud");
+                                    var inputAlt = document.querySelector("#altitud");
+
+                                    inputAlt.value = altitud;
+                                    inputLat.value = latitud;
+                                    console.log(altitud);
+                                    console.log(latitud);
+                                })
+
+                            });
+
+                            function myMap() {
+                                var mapProp = {
+                                    center: new google.maps.LatLng(38.093088, -3.780774),
+                                    zoom: 15,
+                                };
+                                map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+
+
+                                // Agrega un evento de clic al mapa
+                                google.maps.event.addListener(map, 'click', function (event) {
+                                    // Obtiene las coordenadas del evento de click
+                                    var clickedLatLng = event.latLng;
+
+                                    latitud = clickedLatLng.lat();
+                                    altitud = clickedLatLng.lng();
+
+                                    if (marker) {
+                                        marker.setMap(null);
+                                    }
+                                    marker = new google.maps.Marker({
+                                        position: { lat: clickedLatLng.lat(), lng: clickedLatLng.lng() },
+                                        map: map,
+                                        title: "Ubicación Seleccionada",
+                                    })
+                                });
+
+                            }
+                        </script>
+
+                        <script
+                            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO6Ef_22ttWTuk0Q6ThjiLnSMkUURlDPk&callback=myMap">
+                            </script>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal"
+                            id="btnCancelar">Cancelar</button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal"
+                            id="btnConfirmar">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <h1>Modificar Usuario</h1>
         <form th:action="@{/usuarios/update}" method="post" enctype="multipart/form-data">
             <div class="row">
@@ -103,17 +234,38 @@
                         <img th:unless="!(${usuario.imageView})"
                             th:src="'data:image/jpeg;base64,' + ${usuario.imageView}" class="card-img-top foto-perfil"
                             alt="..." />
-                        <span>Ingresa el archivo: <input name="file" type="file" id="file" /></span>
+                        <input name="file" type="file" id="file" />
 
                         <div class="enlaces">
-                            <h3 class="form-h3 direccion">Direcciones</h3>
-                            <a th:href="@{/direcciones/nuevo?id=}+${usuario.id}">
-                                <label class="form-label" th:text="@{Añadir una dirección...}"></label>
-                            </a>
+                            <h3 class="form-h3 direccion">Dirección</h3>
                             <div th:each="direccion : ${usuario.direcciones}">
-                                <a th:href="@{/direcciones/modificar?id=}+${direccion.id}">
-                                    <label class="form-label" th:text="${direccion.calle}"></label>
-                                </a>
+                                <div>
+                                    <label hidden for="id" class="form-label">ID</label>
+                                    <input type="hidden" class="form-control" id="id" name="id"
+                                        th:value="${direccion.id}" />
+                                </div>
+                                <div>
+                                    <label for="calle" class="form-label">Calle</label>
+                                    <input type="text" class="form-control" id="calle" name="calle"
+                                        th:value="${direccion.calle}" />
+                                </div>
+                                <div>
+                                    <label for="latitud" class="form-label">Latitud</label>
+                                    <input type="text" class="form-control" id="latitud" name="latitud"
+                                        th:value="${direccion.latitud}" />
+                                </div>
+                                <div>
+                                    <label for="altitud" class="form-label">Altitud</label>
+                                    <input type="text" class="form-control" id="altitud" name="altitud"
+                                        th:value="${direccion.altitud}" />
+                                </div>
+                                <div>
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal">
+                                        Ver mapa <i class="fa fa-map"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div sec:authorize="hasAnyAuthority('ADMIN')">
@@ -121,15 +273,16 @@
                             <div th:each="tipo : ${tipos}">
                                 <input type="checkbox" name="ck_tipos" th:value="${tipo.id}"
                                     th:checked="${tipo.perteneceUsuario}">
-                                <label th:text="${tipo.nombre}"></label>
+                                <label class="tipo" th:text="${tipo.nombre}"></label>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col espaciado">
                     <div>
-                        <label hidden for="id" class="form-label">ID</label>
-                        <input type="hidden" class="form-control" id="id" name="id" th:value="${usuario.id}" />
+                        <label hidden for="usuario_id" class="form-label">ID</label>
+                        <input type="hidden" class="form-control" id="usuario_id" name="usuario_id"
+                            th:value="${usuario.id}" />
                     </div>
                     <div>
                         <label for="nombre" class="form-label">Nombre</label>
@@ -142,15 +295,55 @@
                             th:value="${usuario.apellidos}" />
                     </div>
                     <div>
-                        <label for="ciudad" class="form-label">Ciudad</label>
-                        <input type="text" class="form-control" id="ciudad" name="ciudad"
-                            th:value="${usuario.ciudad}" />
-                    </div>
-                    <div>
                         <label for="correo" class="form-label">Correo</label>
                         <input type="text" class="form-control" id="correo" name="correo"
                             th:value="${usuario.correo}" />
                     </div>
+                    <div>
+                        <label for="provincia_id" class="form-label">Provincia</label>
+                        <div class="content-select">
+                            <select name="provincia_id">
+                                <div th:each="provincia : ${provincias}">
+                                    <div th:if="!(${usuario.municipio})">
+                                        <option th:value="${provincia.idProvincia}" th:text="${provincia.provincia}">
+                                        </option>
+                                    </div>
+                                    <div th:unless="!(${usuario.municipio})">
+                                        <div
+                                            th:if="!(${usuario.municipio.provincia.idProvincia}==${provincia.idProvincia})">
+                                            <option th:value="${provincia.idProvincia}"
+                                                th:text="${provincia.provincia}">
+                                            </option>
+                                        </div>
+                                        <div
+                                            th:unless="!(${usuario.municipio.provincia.idProvincia}==${provincia.idProvincia})">
+                                            <option th:value="${provincia.idProvincia}" th:text="${provincia.provincia}"
+                                                selected="true">
+                                            </option>
+                                        </div>
+                                    </div>
+                                </div>
+                            </select>
+                            <i></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="municipio_id" class="form-label">Municipio</label>
+                        <input type="hidden" class="form-control" id="idMunicipio" name="idMunicipio"
+                            th:if="${usuario.municipio}" th:value="${usuario.municipio.idMunicipio}" />
+                        <div class="content-select">
+                            <select name="municipio_id" disabled>
+                                <div th:each="municipios : ${municipios}">
+                                    <option th:value="${municipios.idMunicipio}" th:text="${municipios.municipio}">
+                                    </option>
+                                </div>
+                            </select>
+                            <i></i>
+                        </div>
+                    </div>
+
+
                     <div th:if="${isProfesor}==1">
                         <label for="materia_profe" class="form-label">Materia</label>
                         <div class="content-select">

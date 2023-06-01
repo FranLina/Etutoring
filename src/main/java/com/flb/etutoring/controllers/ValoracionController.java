@@ -3,7 +3,6 @@ package com.flb.etutoring.controllers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.flb.etutoring.models.Clase;
 import com.flb.etutoring.models.Usuario;
-import com.flb.etutoring.models.Valoracion;
 import com.flb.etutoring.services.UsuarioService;
 import com.flb.etutoring.services.ValoracionService;
 import com.flb.etutoring.utils.CustomObjectOpciones;

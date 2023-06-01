@@ -1,19 +1,13 @@
 package com.flb.etutoring.models;
-
-import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.flb.etutoring.utils.ImageUtils;
 
 public class Usuario {
     private int id;
     private String nombre;
     private String apellidos;
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date fechaNacimiento;
     private String correo;
-    private String ciudad;
+    private Municipios municipio;
     private List<Tipo> tipo;
     private Materia materia;
     private List<Valoracion> valoraciones;
@@ -57,28 +51,12 @@ public class Usuario {
         this.apellidos = apellidos;
     }
 
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
     public String getCorreo() {
         return correo;
     }
 
     public void setCorreo(String correo) {
         this.correo = correo;
-    }
-
-    public String getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
     }
 
     public List<Tipo> getTipo() {
@@ -169,6 +147,14 @@ public class Usuario {
         if (id != other.id)
             return false;
         return true;
+    }
+
+    public Municipios getMunicipio() {
+        return municipio;
+    }
+
+    public void setMunicipio(Municipios municipio) {
+        this.municipio = municipio;
     }
 
 }

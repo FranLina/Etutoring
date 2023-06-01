@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.flb.etutoring.models.Direccion;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
+import com.flb.etutoring.services.DireccionService;
 import com.flb.etutoring.services.TipoService;
 import com.flb.etutoring.services.UsuarioService;
 
@@ -22,6 +24,9 @@ public class LoginController {
 
     @Autowired
     UsuarioService uService;
+
+    @Autowired
+    DireccionService dService;
 
     @Autowired
     TipoService tService;
@@ -57,7 +62,12 @@ public class LoginController {
         tipos.add(new Tipo(ck_tipos));
         usuario.setTipo(tipos);
         usuario.setPassword(encoder.encode(usuario.getPassword()));
-        /* Usuario u = */uService.save(usuario);
+        Usuario u = uService.save(usuario);
+
+        Direccion d = new Direccion();
+        d.setUsuario(u);
+        dService.save(d);
+        
 
         modelAndView.setViewName("redirect:/login");
         return modelAndView;

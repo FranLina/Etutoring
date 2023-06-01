@@ -1,6 +1,5 @@
 package com.flb.etutoring.controllers;
 
-import java.io.Console;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -25,8 +24,10 @@ import com.flb.etutoring.models.Usuario;
 import com.flb.etutoring.models.Valoracion;
 import com.flb.etutoring.services.CalendarioService;
 import com.flb.etutoring.services.ClaseService;
+import com.flb.etutoring.services.DireccionService;
 import com.flb.etutoring.services.UsuarioService;
 import com.flb.etutoring.services.ValoracionService;
+import com.flb.etutoring.utils.CustomObjectAlumClase;
 import com.flb.etutoring.utils.CustomObjectOpciones;
 
 @Controller
@@ -43,6 +44,9 @@ public class ClaseController {
 
     @Autowired
     ValoracionService vService;
+
+    @Autowired
+    DireccionService dService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ALUMNO')")
     @GetMapping(value = "/usuario")
@@ -199,6 +203,16 @@ public class ClaseController {
         List<Calendario> clases = cService.findByProfesorAndFecha(usuario,
                 Date.from(fecha.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
 
+        List<Clase> reservadas = clService.findByProfesorAndFecha(usuario,
+                Date.from(fecha.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+
+        List<CustomObjectAlumClase> reservadasAux = new ArrayList<>();
+        for (Clase c : reservadas) {
+            Usuario alumno = uService.findById(c.getAlumno().getId());
+            alumno.setDirecciones(dService.findByUsuario(alumno));
+            reservadasAux.add(new CustomObjectAlumClase(c, alumno));
+        }
+
         Boolean reservado = false;
         for (Calendario clase : clases) {
             if (clase.getReservado())
@@ -210,6 +224,7 @@ public class ClaseController {
         modelAndView.addObject("month", month);
         modelAndView.addObject("day", day);
         modelAndView.addObject("clases", clases);
+        modelAndView.addObject("reservadas", reservadasAux);
         modelAndView.addObject("usuario", usuario);
         modelAndView.addObject("reservado", reservado);
         modelAndView.addObject("err", err);
@@ -280,7 +295,7 @@ public class ClaseController {
             v.setComentario(comentario);
             v.setUsuarioValorador(new Usuario((int) session.getAttribute("usuario_id")));
             v.setFechaValoracion(Date.from(fechaActual.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-            Valoracion vAux = vService.save(v);
+            vService.save(v);
 
             c.setValoracion(v);
             clService.update(c);

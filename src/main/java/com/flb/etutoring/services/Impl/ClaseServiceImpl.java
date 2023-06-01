@@ -83,4 +83,17 @@ public class ClaseServiceImpl implements ClaseService {
         restTemplate.delete(urlWSetutoring + "clases/{id}", id);
     }
 
+    @Override
+    public List<Clase> findByProfesorAndFecha(Usuario profesor, Date fecha) {
+        LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        cla = restTemplate.getForObject(urlWSetutoring + "clases/profesor/{id}/{year}/{month}/{day}",
+                Clase[].class,
+                profesor.getId(), diaSeleccionado.getYear(), diaSeleccionado.getMonthValue(),
+                diaSeleccionado.getDayOfMonth());
+
+        List<Clase> calendarios = Arrays.asList(cla);
+        return calendarios;
+    }
+
 }
