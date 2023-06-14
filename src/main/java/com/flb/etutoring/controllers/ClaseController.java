@@ -262,6 +262,41 @@ public class ClaseController {
         return modelAndView;
     }
 
+    @RequestMapping(value = "/profesor/cancelar/all")
+    public ModelAndView cancelarProfesorAll(@RequestParam(name = "year") int year,
+            @RequestParam(name = "month") int month,
+            @RequestParam(name = "day") int day,
+            @RequestParam(name = "id") int profesor_id) {
+
+        LocalDate fecha = LocalDate.of(year, month, day);
+
+        List<Calendario> calendarios = cService.findByProfesorAndFecha(new Usuario(profesor_id),
+                Date.from(fecha.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+
+        String err = "0";
+
+        try {
+            for (Calendario calendario : calendarios) {
+                if (calendario.getReservado()) {
+                    Clase claseSeleccionada = clService.findByFechaAndHorariosAndProfesor(calendario.getFecha(),
+                            calendario.getHorarios(), calendario.getProfesor());
+                    clService.deleteById(claseSeleccionada.getId());
+                }
+                cService.deleteById(calendario.getId());
+                err = "2";
+            }
+
+        } catch (Exception e) {
+            err = "1";
+            System.out.println(e);
+        }
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("err", err);
+        modelAndView.setViewName("redirect:/clases/profesor?id=" + profesor_id);
+        return modelAndView;
+    }
+
     @GetMapping(value = "/modificar")
     public ModelAndView modificarClase(@RequestParam(name = "id") int clase_id,
             @RequestParam(name = "err", required = false, defaultValue = "0") String err) {
@@ -290,16 +325,20 @@ public class ClaseController {
 
         String err = "0";
         try {
-            v.setId(valoracion_id);
-            v.setPuntuacion(estrellas[0]);
-            v.setComentario(comentario);
-            v.setUsuarioValorador(new Usuario((int) session.getAttribute("usuario_id")));
-            v.setFechaValoracion(Date.from(fechaActual.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-            vService.save(v);
+            if (fechaActual.isAfter(c.getLocalFecha()) || fechaActual.isEqual(c.getLocalFecha())) {
+                v.setId(valoracion_id);
+                v.setPuntuacion(estrellas[0]);
+                v.setComentario(comentario);
+                v.setUsuarioValorador(new Usuario((int) session.getAttribute("usuario_id")));
+                v.setFechaValoracion(Date.from(fechaActual.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+                vService.save(v);
 
-            c.setValoracion(v);
-            clService.update(c);
-            err = "2";
+                c.setValoracion(v);
+                clService.update(c);
+                err = "2";
+            } else {
+                err = "3";
+            }
 
         } catch (Exception e) {
             err = "1";

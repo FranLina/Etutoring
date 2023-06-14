@@ -14,9 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.flb.etutoring.models.Calendario;
+import com.flb.etutoring.models.Direccion;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
 import com.flb.etutoring.services.CalendarioService;
+import com.flb.etutoring.services.DireccionService;
 import com.flb.etutoring.services.TipoService;
 import com.flb.etutoring.services.UsuarioService;
 
@@ -33,12 +35,15 @@ class EtutoringApplicationTests {
 	CalendarioService cService;
 
 	@Autowired
+	DireccionService dService;
+
+	@Autowired
 	PasswordEncoder encoder;
 
 	@Test
 	void crearUsuarioAdminYPermisos() {
 		Usuario u = new Usuario();
-		u.setId(30);
+		u.setId(1);
 		u.setNombre("admin");
 		u.setCorreo("admin@gmail.com");
 		u.setUsername("admin");
@@ -59,12 +64,19 @@ class EtutoringApplicationTests {
 		t3.setNombre("ALUMNO");
 		tService.save(t3);
 
+		Direccion d = new Direccion();
+		d.setId(1);
+		d.setAltitud(-3);
+		d.setLatitud(27);
+
 		List<Tipo> listaPermisos = new ArrayList<>();
 		listaPermisos.add(t1);
 		listaPermisos.add(t2);
 		listaPermisos.add(t3);
 		u.setTipo(listaPermisos);
-		uService.save(u);
+		Usuario aux = uService.save(u);
+		d.setUsuario(aux);
+		dService.save(d);
 	}
 
 	@Test

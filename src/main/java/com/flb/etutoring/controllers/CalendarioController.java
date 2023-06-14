@@ -46,7 +46,8 @@ public class CalendarioController {
     @GetMapping(value = "/profesor")
     public ModelAndView tabla(@RequestParam(name = "id") int profesor_id,
             @RequestParam(name = "year", defaultValue = "-1") int year,
-            @RequestParam(name = "month", defaultValue = "-1") int month, ModelMap model) {
+            @RequestParam(name = "month", defaultValue = "-1") int month,
+            @RequestParam(name = "err", required = false, defaultValue = "0") String err, ModelMap model) {
 
         if (year == -1 && month == -1) {
             LocalDate today = LocalDate.now();
@@ -66,7 +67,10 @@ public class CalendarioController {
             year += 1;
         }
         Usuario profesor = uService.findById(profesor_id);
-        List<Calendario> calendario = cService.findByProfesor(profesor);
+
+        LocalDate diaActual = LocalDate.now();
+        List<Calendario> calendario = cService.findByProfesorAndGreaterThanEqualFecha(profesor,
+                Date.from(diaActual.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
         LocalDate now = LocalDate.of(year, month, 1);
         int monthLength = now.lengthOfMonth();
         int firstDay = now.withDayOfMonth(1).getDayOfWeek().getValue();
@@ -90,6 +94,7 @@ public class CalendarioController {
             weeks.add(days);
         }
 
+        modelAndView.addObject("err", err);
         modelAndView.addObject("year", year);
         modelAndView.addObject("date", meses[now.getMonthValue()]);
         modelAndView.addObject("month", month);
@@ -123,19 +128,32 @@ public class CalendarioController {
             ModelMap model, HttpSession session) {
 
         Calendario cal = cService.findById(clase_id);
+        String err = "0";
 
-        Clase claseSeleccionada = new Clase();
-        claseSeleccionada.setFecha(cal.getFecha());
-        claseSeleccionada.setHorarios(cal.getHorarios());
-        claseSeleccionada.setProfesor(cal.getProfesor());
-        claseSeleccionada.setAlumno(new Usuario(Integer.parseInt(session.getAttribute("usuario_id").toString())));
-        claseSeleccionada.setOnline(false);
-        clService.save(claseSeleccionada);
+        try {
+            Usuario alumno = new Usuario(Integer.parseInt(session.getAttribute("usuario_id").toString()));
+            Clase c = clService.findByFechaAndHorariosAndAlumno(cal.getFecha(), cal.getHorarios(), alumno);
+            if (c == null) {
+                Clase claseSeleccionada = new Clase();
+                claseSeleccionada.setFecha(cal.getFecha());
+                claseSeleccionada.setHorarios(cal.getHorarios());
+                claseSeleccionada.setProfesor(cal.getProfesor());
+                claseSeleccionada.setAlumno(alumno);
+                claseSeleccionada.setOnline(false);
+                clService.save(claseSeleccionada);
 
-        cal.setReservado(true);
-        cService.update(cal);
+                cal.setReservado(true);
+                cService.update(cal);
+                err = "2";
+            } else {
+                err = "1";
+            }
+        } catch (Exception e) {
+            err = "3";
+        }
 
         ModelAndView modelAndView = new ModelAndView("redirect:profesor?id=" + cal.getProfesor().getId());
+        modelAndView.addObject("err", err);
         return modelAndView;
     }
 
@@ -206,46 +224,26 @@ public class CalendarioController {
 
         Usuario profesor = uService.findById(profe_id);
 
-        if (fechaIn != null && fechaFi != null) {
-            String[] fechaI = fechaIn.split("-");
-            String[] fechaF = fechaFi.split("-");
+        List<Calendario> calendarioExistente = cService.findByProfesor(profesor);
 
-            LocalDate fechaInicio = LocalDate.of(Integer.parseInt(fechaI[0]), Integer.parseInt(fechaI[1]),
-                    Integer.parseInt(fechaI[2]));
-            LocalDate fechaFinal = LocalDate.of(Integer.parseInt(fechaF[0]), Integer.parseInt(fechaF[1]),
-                    Integer.parseInt(fechaF[2]));
+        List<Calendario> calendariosGenerados = new ArrayList<>();
+        List<Calendario> calendariosAux = new ArrayList<>();
 
-            LocalDate fechaActual = fechaInicio;
+        String err = "0";
 
-            while (fechaActual.isBefore(fechaFinal.plusDays(1))) {
-                if (dias.contains(fechaActual.getDayOfWeek().name())) {
-                    for (int hora : ck_horas) {
-                        String horario = "";
-                        if (hora < 10)
-                            horario += "0";
-                        horario += hora + ":00-";
-                        if (hora + 1 < 10)
-                            horario += "0";
-                        horario += (hora + 1) + ":00";
+        try {
 
-                        Calendario calendario = new Calendario();
-                        calendario
-                                .setFecha(Date
-                                        .from(fechaActual.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-                        calendario.setHorarios(horario);
-                        calendario.setProfesor(profesor);
-                        calendario.setReservado(false);
-                        cService.save(calendario);
-                    }
+            if (fechaIn != null && fechaFi != null) {
+                String[] fechaI = fechaIn.split("-");
+                String[] fechaF = fechaFi.split("-");
 
-                }
-                fechaActual = fechaActual.plusDays(1);
-            }
-        } else if (ck_meses != null) {
+                LocalDate fechaInicio = LocalDate.of(Integer.parseInt(fechaI[0]), Integer.parseInt(fechaI[1]),
+                        Integer.parseInt(fechaI[2]));
+                LocalDate fechaFinal = LocalDate.of(Integer.parseInt(fechaF[0]), Integer.parseInt(fechaF[1]),
+                        Integer.parseInt(fechaF[2]));
 
-            for (int mesActual : ck_meses) {
-                LocalDate fechaActual = LocalDate.of(fechaHoy.getYear(), mesActual + 1, 1);
-                LocalDate fechaFinal = fechaActual.with(TemporalAdjusters.lastDayOfMonth());
+                LocalDate fechaActual = fechaInicio;
+
                 while (fechaActual.isBefore(fechaFinal.plusDays(1))) {
                     if (dias.contains(fechaActual.getDayOfWeek().name())) {
                         for (int hora : ck_horas) {
@@ -265,18 +263,65 @@ public class CalendarioController {
                             calendario.setHorarios(horario);
                             calendario.setProfesor(profesor);
                             calendario.setReservado(false);
-                            cService.save(calendario);
+                            calendariosGenerados.add(calendario);
+                            // cService.save(calendario);
                         }
 
                     }
                     fechaActual = fechaActual.plusDays(1);
                 }
+            } else if (ck_meses != null) {
+
+                for (int mesActual : ck_meses) {
+                    LocalDate fechaActual = LocalDate.of(fechaHoy.getYear(), mesActual + 1, 1);
+                    LocalDate fechaFinal = fechaActual.with(TemporalAdjusters.lastDayOfMonth());
+                    while (fechaActual.isBefore(fechaFinal.plusDays(1))) {
+                        if (dias.contains(fechaActual.getDayOfWeek().name())) {
+                            for (int hora : ck_horas) {
+                                String horario = "";
+                                if (hora < 10)
+                                    horario += "0";
+                                horario += hora + ":00-";
+                                if (hora + 1 < 10)
+                                    horario += "0";
+                                horario += (hora + 1) + ":00";
+
+                                Calendario calendario = new Calendario();
+                                calendario
+                                        .setFecha(Date
+                                                .from(fechaActual.atStartOfDay().atZone(ZoneId.systemDefault())
+                                                        .toInstant()));
+                                calendario.setHorarios(horario);
+                                calendario.setProfesor(profesor);
+                                calendario.setReservado(false);
+                                calendariosGenerados.add(calendario);
+                                // cService.save(calendario);
+                            }
+
+                        }
+                        fechaActual = fechaActual.plusDays(1);
+                    }
+                }
+
             }
 
+            for (Calendario c : calendariosGenerados) {
+                if (!(calendarioExistente.contains(c))) {
+                    calendariosAux.add(c);
+                }
+            }
+
+            for (Calendario c : calendariosAux) {
+                cService.save(c);
+            }
+            err = "2";
+
+        } catch (Exception e) {
+            err = "1";
         }
 
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("err", 2);
+        modelAndView.addObject("err", err);
         modelAndView.setViewName("redirect:generarCalendario?id=" + profe_id);
         return modelAndView;
     }

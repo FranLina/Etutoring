@@ -92,6 +92,20 @@
             column-gap: 5em;
         }
 
+        .imagen-redonda {
+            margin-top: .5em;
+            width: 5em;
+            height: 5em;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .imagen-redonda img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         @media screen and (max-width: 1100px) {
             .contenedor {
                 margin: 2em 1em;
@@ -156,7 +170,7 @@
                     <div class="tarjeta-dia" th:if="${clase.reservado}==false">
                         <div class="fecha">
                             <strong>Fecha: </strong>
-                            <span th:text="${clase.fecha}"></span>
+                            <span th:text="${#dates.format(clase.fecha,'dd/MM/yyyy')}"></span>
                         </div>
                         <div class="horario">
                             <strong>Horario: </strong>
@@ -171,17 +185,20 @@
                         </div>
                     </div>
                     <div class="tarjeta-dia no-disponible" th:if="${clase.reservado}==true">
-                        <div class="fecha">
-                            <strong>Fecha: </strong>
-                            <span th:text="${clase.fecha}"></span>
+                        <div>
+                            <div class="fecha">
+                                <strong>Fecha: </strong>
+                                <span th:text="${#dates.format(clase.fecha,'dd/MM/yyyy')}"></span>
+                            </div>
+                            <div class="horario">
+                                <strong>Horario: </strong>
+                                <span th:text="${clase.horarios}"></span>
+                            </div>
+                            <div class="reservado">
+                                <strong>Reservado por</strong>
+                            </div>
                         </div>
-                        <div class="horario">
-                            <strong>Horario: </strong>
-                            <span th:text="${clase.horarios}"></span>
-                        </div>
-                        <div class="reservado">
-                            <strong>Reservado</strong>
-                        </div>
+
                         <div th:each="combined : ${reservadas}">
                             <div th:if="${clase.horarios}==${combined.clase.horarios}">
                                 <div class="direcciones" th:if="${combined.alumno.direcciones}"
@@ -192,7 +209,13 @@
                                     <label hidden th:text="${combined.alumno.apellidos}"></label>
                                 </div>
                                 <div>
-                                    <label><span th:text="${combined.alumno.nombre}"></span> <span th:text="${combined.alumno.apellidos}"></span></label>
+                                    <div class="imagen-redonda">
+                                        <img th:if="(${usuario.imageView})"
+                                            th:src="'data:image/jpeg;base64,' + ${combined.alumno.imageView}"
+                                            class="card-img-top" alt="..." />
+                                    </div>
+                                    <label><span th:text="${combined.alumno.nombre}"></span> <span
+                                            th:text="${combined.alumno.apellidos}"></span></label>
                                 </div>
                             </div>
                         </div>
@@ -249,7 +272,8 @@
             <div class="boton">
                 <a th:href="@{/clases/profesor?id=}+${usuario.id}+@{&year=}+${year}+@{&month=}+${month}"
                     class="btn btn-outline-warning">Volver</a>
-                <a th:href="@{/clases/profesor/cancelar?id=}+${usuario.id}" class="btn btn-outline-danger">Cancelar
+                <a th:href="@{/clases/profesor/cancelar/all/?year=}+${year}+@{&month=}+${month}+@{&day=}+${day}+@{&id=}+${usuario.id}"
+                    class="btn btn-outline-danger">Cancelar
                     Todo</a>
             </div>
         </div>

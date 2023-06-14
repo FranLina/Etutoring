@@ -751,8 +751,112 @@
             transform: translate3d(73vw, 70vh, 18px);
             background: #d926d0;
         }
+
+        div.valid-password,
+        div.valid-username,
+        div.valid-email {
+            color: red;
+        }
     </style>
     <title>Registro : Etutoring</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var formulario = document.querySelector("#formRegistro");
+
+            var boton = formulario.querySelector("input[type=button]");
+
+            boton.addEventListener("click", validarForm);
+
+            function validarForm() {
+                var hasError = false;
+                var cajas = formulario.querySelectorAll("input[type=text], input[type=password]");
+
+                cajas.forEach(function (element) {
+                    if (element.classList.contains("valid-username")) {
+                        if (!validarDNI(element.value)) {
+                            var divError = formulario.querySelector("div.valid-username");
+                            divError.hidden = false;
+                            hasError = true;
+                        } else {
+                            var divError = formulario.querySelector("div.valid-username");
+                            divError.hidden = true;
+                        }
+
+                    } else if (element.classList.contains("valid-password")) {
+                        if (!validarContrasena(element.value)) {
+                            var divError = formulario.querySelector("div.valid-password");
+                            divError.hidden = false;
+                            hasError = true;
+                        } else {
+                            var divError = formulario.querySelector("div.valid-password");
+                            divError.hidden = true;
+                        }
+
+                    } else if (element.classList.contains("valid-email")) {
+                        if (!validarCorreo(element.value)) {
+                            var divError = formulario.querySelector("div.valid-email");
+                            divError.hidden = false;
+                            hasError = true;
+                        } else {
+                            var divError = formulario.querySelector("div.valid-email");
+                            divError.hidden = true;
+                        }
+                    }
+                });
+
+                if (hasError == false)
+                    formulario.submit();
+            }
+
+            function validarDNI(dni) {
+                var letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
+                var dniPattern = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/i;
+
+                if (!dniPattern.test(dni)) {
+                    return false;
+                }
+
+                var numero = dni.substr(0, dni.length - 1);
+                var letra = dni.substr(-1).toUpperCase();
+
+                var resto = numero % 23;
+                var letraEsperada = letras.charAt(resto);
+
+                if (letra !== letraEsperada) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            function validarCorreo(correo) {
+                var correoPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!correoPattern.test(correo)) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            function validarContrasena(contrasena) {
+                var letraPattern = /[a-zA-Z]/;
+                var numeroPattern = /[0-9]/;
+
+                if (!letraPattern.test(contrasena) || !numeroPattern.test(contrasena)) {
+                    return false;
+                }
+
+                if (contrasena.length < 6) {
+                    return false;
+                }
+
+                return true;
+            }
+
+
+        });
+    </script>
 </head>
 
 <body class="h-screen">
@@ -793,34 +897,45 @@
     </div>
     <div class="container mx-auto h-full flex justify-center items-center text-green-700 px-4">
         <div class="md:w-1/3 shadow-xl rounded-2xl border bg-green-100 w-full">
-            <h1 class="text-center font-medium text-2xl text-white rounded-t-2xl bg-green-500 py-4">Resgistro</h1>
-            <form th:action="@{/saveRegistro}" method="post" class="border-teal p-4 border-t-12 bg-white mb-6">
+            <h1 class="text-center font-medium text-2xl text-white rounded-t-2xl bg-green-500 py-4">Registro</h1>
+            <form th:action="@{/saveRegistro}" method="post" class="border-teal p-4 border-t-12 bg-white mb-6"
+                id="formRegistro">
                 <div class="mb-4">
                     <label for="username" class="font-bold text-lg block mb-2">Usuario</label>
                     <input id="username" type="text" name="username" autocomplete="off"
-                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                        placeholder="00000000X">
+                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent valid-username"
+                        placeholder="00000000X" required>
+                    <div hidden class="valid-username">
+                        <label>Comprueba que has escrito bien el DNI.</label>
+                    </div>
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="font-bold text-lg block mb-2">Contraseña</label>
                     <input id="password" type="password" name="password" autocomplete="off"
-                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                        placeholder="contraseña">
+                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent valid-password"
+                        placeholder="contraseña" required>
+                    <div hidden class="valid-password">
+                        <label>Comprueba que al menos haya un digito y una letra, y ademas tenga una longitud de 6
+                            caracteres.</label>
+                    </div>
                 </div>
 
                 <div class="mb-4">
                     <label for="correo" class="font-bold text-lg block mb-2">Correo</label>
                     <input id="correo" type="text" name="correo" autocomplete="off"
-                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                        placeholder="correo">
+                        class="block w-full rounded p-2 rounded shadow border focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent valid-email"
+                        placeholder="correo" required>
+                    <div hidden class="valid-email">
+                        <label>Comprueba que has escrito bien el correo.</label>
+                    </div>
                 </div>
 
                 <div class="mb-4">
                     <h3 class="font-bold text-lg block mb-2">Permisos</h3>
                     <div th:each="tipo : ${tipos}">
                         <div th:if="!(${tipo.nombre}=='ADMIN')">
-                            <input type="radio" name="ck_tipos" th:value="${tipo.id}">
+                            <input type="radio" name="ck_tipos" th:value="${tipo.id}" checked>
                             <label th:text="${tipo.nombre}"></label>
                         </div>
                     </div>
@@ -829,7 +944,7 @@
                 <div class="flex items-center justify-between">
                     <input
                         class="bg-green-500 text-white text-lg font-medium p-2 rounded inline-block w-full hover:bg-green-400 transition duration-400 hover:shadow-lg"
-                        type="submit" value="Registrar">
+                        type="button" value="Registrar">
                 </div>
 
             </form>

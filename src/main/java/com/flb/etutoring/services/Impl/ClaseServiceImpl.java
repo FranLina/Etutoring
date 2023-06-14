@@ -61,6 +61,17 @@ public class ClaseServiceImpl implements ClaseService {
     }
 
     @Override
+    public Clase findByFechaAndHorariosAndAlumno(Date fecha, String horarios, Usuario alumno) {
+        LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        Clase c = restTemplate.getForObject(
+                urlWSetutoring + "clases/comprobar/{year}/{month}/{day}/{horarios}/{id}",
+                Clase.class, diaSeleccionado.getYear(), diaSeleccionado.getMonthValue(),
+                diaSeleccionado.getDayOfMonth(), horarios, alumno.getId());
+        return c;
+    }
+
+    @Override
     public Clase findById(int id) {
         Clase c = restTemplate.getForObject(urlWSetutoring + "clases/{id}", Clase.class, id);
         return c;

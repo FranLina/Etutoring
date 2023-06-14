@@ -299,7 +299,8 @@
                                     <strong th:text="${combined.profesor.apellidos}" class="card-text"></strong>
                                 </p>
                                 <label th:text="${combined.profesor.materia.nombre}" class="card-text"></label>
-                                <p th:text="${combined.profesor.municipio.municipio}" th:if="${combined.profesor.municipio}" class="card-text"></p>
+                                <p th:text="${combined.profesor.municipio.municipio}"
+                                    th:if="${combined.profesor.municipio}" class="card-text"></p>
                                 <div class="direcciones" th:if="${combined.profesor.direcciones}"
                                     th:each="direccion : ${combined.profesor.direcciones}">
                                     <label hidden th:text="${direccion.latitud}"></label>

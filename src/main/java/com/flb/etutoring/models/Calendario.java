@@ -58,7 +58,9 @@ public class Calendario {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + id;
+        result = prime * result + ((profesor == null) ? 0 : profesor.hashCode());
+        result = prime * result + ((fecha == null) ? 0 : fecha.hashCode());
+        result = prime * result + ((horarios == null) ? 0 : horarios.hashCode());
         return result;
     }
 
@@ -71,7 +73,20 @@ public class Calendario {
         if (getClass() != obj.getClass())
             return false;
         Calendario other = (Calendario) obj;
-        if (id != other.id)
+        if (profesor == null) {
+            if (other.profesor != null)
+                return false;
+        } else if (!profesor.equals(other.profesor))
+            return false;
+        if (fecha == null) {
+            if (other.fecha != null)
+                return false;
+        } else if (!fecha.equals(other.fecha))
+            return false;
+        if (horarios == null) {
+            if (other.horarios != null)
+                return false;
+        } else if (!horarios.equals(other.horarios))
             return false;
         return true;
     }

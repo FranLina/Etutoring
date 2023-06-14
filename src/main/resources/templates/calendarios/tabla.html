@@ -70,6 +70,23 @@
     </style>
 
     <script>
+
+        $(document).ready(function () {
+            // Obtener el elemento de "toast"
+            var toastEl = $('.toast');
+
+            // Crear el objeto de "toast" con opciones personalizadas
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000,
+                    animation: true
+                });
+                // Mostrar el "toast"
+                toast.show();
+            }
+        });
+
         window.addEventListener("DOMContentLoaded", (event) => {
             /*var lista = document.querySelectorAll("div[class='disponible']");
             var lista2 = document.querySelectorAll("div[class='agotado']");
@@ -119,6 +136,29 @@
 
 <body>
     <div th:replace="commons/menu :: menu" />
+
+    <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
+
+        <div th:if="${err}==1 OR ${err}==3" class="toast-header error">
+            <!--Notificación de error-->
+            <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
+            <strong class="me-auto"> Error</strong>
+            <small>Se cerrará en 5 segundos</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${err}==2" class="toast-header correcto">
+            <!--Notificación de correcto-->
+            <i class="fa-solid fa-circle-check fa-bounce"> </i>
+            <strong class="me-auto"> Correcto</strong>
+            <small>Se cerrará en 5 segundos</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div th:if="${err}==1" class="toast-body" th:text="#{error.reserva.clase}"></div>
+        <div th:if="${err}==2" class="toast-body" th:text="#{success.reserva.clase}"></div>
+        <div th:if="${err}==3" class="toast-body" th:text="#{error.reserva.error}"></div>
+    </div>
+
     <div class="container-md">
         <div class="tarjeta-profesor">
             <div class="profesor">
@@ -155,7 +195,9 @@
             <tbody>
                 <tr th:each="week : ${weeks}">
                     <td th:each="day : ${week}" class="w-13">
-                        <a th:href="@{/calendario/reservar?id=}+${profesor.id}+@{&year=}+${year}+@{&month=}+${month}+@{&day=}+${day}"><span th:text="${day}"></span></a>
+                        <a
+                            th:href="@{/calendario/reservar?id=}+${profesor.id}+@{&year=}+${year}+@{&month=}+${month}+@{&day=}+${day}"><span
+                                th:text="${day}"></span></a>
                         <div th:each="clase : ${calendar}"
                             th:if="${clase.localFecha.getDayOfMonth}==${day} and ${clase.localFecha.getMonthValue}==${month} and ${clase.localFecha.getYear}==${year}">
                             <div th:if="${clase.reservado}==false" class="disponible"></div>

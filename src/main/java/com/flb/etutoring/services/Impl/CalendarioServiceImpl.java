@@ -63,6 +63,19 @@ public class CalendarioServiceImpl implements CalendarioService {
     }
 
     @Override
+    public List<Calendario> findByProfesorAndGreaterThanEqualFecha(Usuario profesor, Date fecha) {
+        LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        cal = restTemplate.getForObject(urlWSetutoring + "calendarios/profesor/{id}/{year}/{month}/{day}",
+                Calendario[].class,
+                profesor.getId(), diaSeleccionado.getYear(), diaSeleccionado.getMonthValue(),
+                diaSeleccionado.getDayOfMonth());
+
+        List<Calendario> calendarios = Arrays.asList(cal);
+        return calendarios;
+    }
+
+    @Override
     public Calendario findByFechaAndHorariosAndProfesor(Date fecha, String horarios, Usuario profesor) {
 
         LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();

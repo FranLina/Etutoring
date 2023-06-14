@@ -61,6 +61,70 @@
             });
         }
 
+        var formulario = document.querySelector("#formUsuario");
+
+        var boton = formulario.querySelector("input[type=button]");
+
+        boton.addEventListener("click", validarForm);
+
+        function validarForm() {
+            var hasError = false;
+            var cajas = formulario.querySelectorAll("input[type=text]");
+
+            cajas.forEach(function (element) {
+                if (element.classList.contains("valid-text")) {
+                    if (element.value == "") {
+                        var divError = element.parentElement.querySelector("div.valid-text");
+                        divError.hidden = false;
+                        hasError = true;
+                    } else {
+                        var divError = element.parentElement.querySelector("div.valid-text");
+                        divError.hidden = true;
+                    }
+
+                } else if (element.classList.contains("valid-direccion")) {
+                    if (!validarNumero(element.value) || element.value == "") {
+                        var divError = element.parentElement.querySelector("div.valid-direccion");
+                        divError.hidden = false;
+                        hasError = true;
+                    } else {
+                        var divError = element.parentElement.querySelector("div.valid-direccion");
+                        divError.hidden = true;
+                    }
+
+                } else if (element.classList.contains("valid-email")) {
+                    if (!validarCorreo(element.value)) {
+                        var divError = formulario.querySelector("div.valid-email");
+                        divError.hidden = false;
+                        hasError = true;
+                    } else {
+                        var divError = formulario.querySelector("div.valid-email");
+                        divError.hidden = true;
+                    }
+                }
+            });
+
+            if (hasError == false)
+                formulario.submit();
+        }
+
+        function validarNumero(numero) {
+            if (isNaN(numero)) {
+                return false;
+            }
+            return true;
+        }
+
+        function validarCorreo(correo) {
+            var correoPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!correoPattern.test(correo)) {
+                return false;
+            }
+
+            return true;
+        }
+
     });
 </script>
 
@@ -115,6 +179,12 @@
         .content-select select:disabled {
             background-color: rgba(128, 128, 128, 0.233);
         }
+
+        div.valid-text,
+        div.valid-direccion,
+        div.valid-email {
+            color: red;
+        }
     </style>
     <div th:replace="commons/menu :: menu" />
     <div class="container">
@@ -168,6 +238,18 @@
                                     title: "Ubicación Seleccionada",
                                 })
 
+                                var btnCancelar = document.querySelector("#btnCancelar");
+                                btnCancelar.addEventListener("click", function () {
+                                    if (marker) {
+                                        marker.setMap(null);
+                                    }
+                                    marker = new google.maps.Marker({
+                                        position: { lat: parseFloat(inputLat.value), lng: parseFloat(inputAlt.value) },
+                                        map: map,
+                                        title: "Ubicación Seleccionada",
+                                    })
+                                });
+
                                 var btnConfirmar = document.querySelector("#btnConfirmar");
                                 btnConfirmar.addEventListener("click", function () {
                                     var inputLat = document.querySelector("#latitud");
@@ -182,6 +264,7 @@
                             });
 
                             function myMap() {
+
                                 var mapProp = {
                                     center: new google.maps.LatLng(38.093088, -3.780774),
                                     zoom: 15,
@@ -225,7 +308,7 @@
         </div>
 
         <h1>Modificar Usuario</h1>
-        <form th:action="@{/usuarios/update}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/usuarios/update}" method="post" enctype="multipart/form-data" id="formUsuario">
             <div class="row">
                 <div class="col">
                     <div class="foto">
@@ -251,13 +334,21 @@
                                 </div>
                                 <div>
                                     <label for="latitud" class="form-label">Latitud</label>
-                                    <input type="text" class="form-control" id="latitud" name="latitud"
+                                    <input type="text" class="form-control valid-direccion" id="latitud" name="latitud"
                                         th:value="${direccion.latitud}" />
+                                    <div hidden class="valid-direccion">
+                                        <label>Comprueba que has escrito bien la latitud, el formato no es el
+                                            correcto.</label>
+                                    </div>
                                 </div>
                                 <div>
                                     <label for="altitud" class="form-label">Altitud</label>
-                                    <input type="text" class="form-control" id="altitud" name="altitud"
+                                    <input type="text" class="form-control valid-direccion" id="altitud" name="altitud"
                                         th:value="${direccion.altitud}" />
+                                    <div hidden class="valid-direccion">
+                                        <label>Comprueba que has escrito bien la altitud, el formato no es el
+                                            correcto.</label>
+                                    </div>
                                 </div>
                                 <div>
                                     <!-- Button trigger modal -->
@@ -286,18 +377,27 @@
                     </div>
                     <div>
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre"
+                        <input type="text" class="form-control valid-text" id="nombre" name="nombre"
                             th:value="${usuario.nombre}" />
+                        <div hidden class="valid-text">
+                            <label>Comprueba que has escrito bien el nombre.</label>
+                        </div>
                     </div>
                     <div>
                         <label for="apellidos" class="form-label">Apellidos</label>
-                        <input type="text" class="form-control" id="apellidos" name="apellidos"
+                        <input type="text" class="form-control valid-text" id="apellidos" name="apellidos"
                             th:value="${usuario.apellidos}" />
+                        <div hidden class="valid-text">
+                            <label>Comprueba que has escrito bien los apellidos.</label>
+                        </div>
                     </div>
                     <div>
                         <label for="correo" class="form-label">Correo</label>
-                        <input type="text" class="form-control" id="correo" name="correo"
+                        <input type="text" class="form-control valid-email" id="correo" name="correo"
                             th:value="${usuario.correo}" />
+                        <div hidden class="valid-email">
+                            <label>Comprueba que has escrito bien el correo.</label>
+                        </div>
                     </div>
                     <div>
                         <label for="provincia_id" class="form-label">Provincia</label>
@@ -370,7 +470,7 @@
                 <div class="boton">
                     <a th:href="@{/usuarios/list}" class="btn btn-outline-warning" id="btnVolver"
                         sec:authorize="hasAnyAuthority('ADMIN')">Volver</a>
-                    <input class="btn btn-outline-success botonCentrado" type="submit" id="btnEnviar" value="Guardar">
+                    <input class="btn btn-outline-success botonCentrado" type="button" id="btnEnviar" value="Guardar">
                     <a th:if="${isProfesor}==1" th:href="@{/calendario/generarCalendario?id=}+${usuario.id}"
                         class="btn btn-outline-info" id="btnCalendario">Generar Calendario <i
                             class="fa fa-calendar-days"></i></a>

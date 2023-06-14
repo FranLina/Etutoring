@@ -29,11 +29,46 @@
         .cabecera {
             background-color: rgba(255, 0, 0, 0.5);
         }
+
+        div.valid-nombre {
+            color: red;
+        }
     </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var formulario = document.querySelector("#formMateria");
+
+            var boton = formulario.querySelector("input[type=button]");
+
+            boton.addEventListener("click", validarForm);
+
+            function validarForm() {
+                var hasError = false;
+                var cajas = formulario.querySelectorAll("input[type=text]");
+
+                cajas.forEach(function (element) {
+                    if (element.classList.contains("valid-nombre")) {
+                        if (element.value == "") {
+                            var divError = formulario.querySelector("div.valid-nombre");
+                            divError.hidden = false;
+                            hasError = true;
+                        } else {
+                            var divError = formulario.querySelector("div.valid-nombre");
+                            divError.hidden = true;
+                        }
+                    }
+                });
+
+                if (hasError == false)
+                    formulario.submit();
+            }
+        });
+    </script>
     <div th:replace="commons/menu :: menu" />
     <div class="container">
         <h1>Modificar Materia</h1>
-        <form th:action="@{/materias/update}" method="post">
+        <form th:action="@{/materias/update}" method="post" id="formMateria">
             <div class="row">
                 <div class="col espaciado">
                     <div>
@@ -42,16 +77,18 @@
                     </div>
                     <div>
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre"
+                        <input type="text" class="form-control valid-nombre" id="nombre" name="nombre"
                             th:value="${materia.nombre}" />
+                        <div hidden class="valid-nombre">
+                            <label>Comprueba que has escrito bien el nombre.</label>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="boton">
-                    <a th:href="@{/materias/list}" class="btn btn-outline-warning"
-                        id="btnVolver">Volver</a>
-                    <input class="btn btn-outline-success" type="submit" id="btnEnviar" value="Guardar">
+                    <a th:href="@{/materias/list}" class="btn btn-outline-warning" id="btnVolver">Volver</a>
+                    <input class="btn btn-outline-success" type="button" id="btnEnviar" value="Guardar">
 
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"

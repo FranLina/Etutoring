@@ -98,7 +98,7 @@
 
         <div class="toast notificacion" role="alert" aria-live="assertive" aria-atomic="true" th:if="${err}!=0">
 
-            <div th:if="${err}==1" class="toast-header error">
+            <div th:if="${err}==1 OR ${err}==3" class="toast-header error">
                 <!--Notificación de error-->
                 <i class="fa-solid fa-triangle-exclamation fa-bounce"> </i>
                 <strong class="me-auto"> Error</strong>
@@ -114,6 +114,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div th:if="${err}==1" class="toast-body" th:text="#{error.clase.valoracion}"></div>
+            <div th:if="${err}==3" class="toast-body" th:text="#{error.clase.valoracion2}"></div>
             <div th:if="${err}==2" class="toast-body" th:text="#{success.clase.valoracion}"></div>
         </div>
 
@@ -136,7 +137,7 @@
                     </div>
                     <div>
                         <strong>Fecha: </strong>
-                        <span th:text="${clase.fecha}"></span>
+                        <span th:text="${#dates.format(clase.fecha,'dd/MM/yyyy')}"></span>
                     </div>
                     <div>
                         <strong>Horario: </strong>
