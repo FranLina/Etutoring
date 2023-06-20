@@ -25,6 +25,8 @@ import com.flb.etutoring.models.Municipios;
 import com.flb.etutoring.models.Provincias;
 import com.flb.etutoring.models.Tipo;
 import com.flb.etutoring.models.Usuario;
+import com.flb.etutoring.models.Valoracion;
+import com.flb.etutoring.models.Calendario;
 import com.flb.etutoring.models.Ccaa;
 import com.flb.etutoring.services.CalendarioService;
 import com.flb.etutoring.services.ClaseService;
@@ -34,6 +36,7 @@ import com.flb.etutoring.services.MunicipiosService;
 import com.flb.etutoring.services.ProvinciasService;
 import com.flb.etutoring.services.TipoService;
 import com.flb.etutoring.services.UsuarioService;
+import com.flb.etutoring.services.ValoracionService;
 import com.flb.etutoring.utils.CustomObject;
 
 @Controller
@@ -63,9 +66,14 @@ public class UsuarioController {
     @Autowired
     MunicipiosService muniService;
 
+    @Autowired
+    ValoracionService vService;
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping(value = "/list")
-    public ModelAndView list(Model model, HttpSession session) {
+    public ModelAndView list(Model model,
+            @RequestParam(name = "err", required = false, defaultValue = "0") String err,
+            HttpSession session) {
         List<Usuario> usuarios = uService.findAll();
 
         for (Usuario usuario : usuarios) {
@@ -73,10 +81,12 @@ public class UsuarioController {
         }
 
         ModelAndView modelAndView = new ModelAndView("usuarios/list");
+        modelAndView.addObject("err", err);
         modelAndView.addObject("usuarios", usuarios);
         return modelAndView;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','ALUMNO')")
     @GetMapping(value = "/listProfesor")
     public ModelAndView listProfesores(
             @RequestParam(name = "materia_id", required = false, defaultValue = "-1") int materia_id,
@@ -117,7 +127,7 @@ public class UsuarioController {
         for (Usuario usuario : usuarios) {
             usuario.setDirecciones(dService.findByUsuario(usuario));
             if (usuario.getMateria() != null) {
-                List<Clase> listadoClases = clService.findByProfesor(usuario);
+                List<Clase> listadoClases = clService.findByProfesorAndValoracionNotNull(usuario);
                 double sum = 0, total = 0;
                 if (listadoClases.size() > 0) {
                     for (Clase c : listadoClases) {
@@ -242,6 +252,61 @@ public class UsuarioController {
 
         modelAndView.addObject("err", err);
         modelAndView.setViewName("redirect:modificar?id=" + usuario.getId());
+        return modelAndView;
+    }
+
+    @RequestMapping(value = { "/borrar" })
+    public ModelAndView delete(@RequestParam(name = "id", required = true) int id,
+            @RequestParam(name = "err", required = false, defaultValue = "0") String err) {
+        ModelAndView modelAndView = new ModelAndView();
+
+        Usuario u = uService.findById(id);
+        err = "0";
+        try {
+            List<Direccion> listaDirecciones = dService.findByUsuario(u);
+            for (Direccion d : listaDirecciones) {
+                dService.deleteById(d.getId());
+            }
+
+            List<Clase> listaClases = new ArrayList<>();
+            List<Calendario> listaCalendarios = new ArrayList<>();
+
+            for (Tipo t : u.getTipo()) {
+                if (t.getNombre().equals("ALUMNO")) {
+                    listaClases = clService.findByALumno(u);
+                } else if (t.getNombre().equals("PROFESOR")) {
+                    listaClases = clService.findByProfesor(u);
+                    listaCalendarios = cService.findByProfesor(u);
+                }
+            }
+
+            if (listaClases.size() > 0) {
+                for (Clase cl : listaClases) {
+                    clService.deleteById(cl.getId());
+                    /*
+                     * if (cl.getValoracion() != null) {
+                     * vService.deleteById(cl.getValoracion().getId());
+                     * }
+                     */
+                }
+            }
+
+            if (listaCalendarios.size() > 0) {
+                for (Calendario c : listaCalendarios) {
+                    cService.deleteById(c.getId());
+                }
+            }
+
+            uService.deleteById(id);
+            err = "2";
+
+        } catch (Exception e) {
+            err = "1";
+            System.out.println(e);
+        }
+
+        modelAndView.addObject("err", err);
+        modelAndView.setViewName("redirect:list");
         return modelAndView;
     }
 }

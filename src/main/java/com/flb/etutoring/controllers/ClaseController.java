@@ -297,6 +297,7 @@ public class ClaseController {
         return modelAndView;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','ALUMNO')")
     @GetMapping(value = "/modificar")
     public ModelAndView modificarClase(@RequestParam(name = "id") int clase_id,
             @RequestParam(name = "err", required = false, defaultValue = "0") String err) {
@@ -350,6 +351,7 @@ public class ClaseController {
         return modelAndView;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','ALUMNO')")
     @RequestMapping(value = "/cancelar")
     public ModelAndView cancelar(@RequestParam(name = "id", required = true) int id) {
         Clase clase = clService.findById(id);

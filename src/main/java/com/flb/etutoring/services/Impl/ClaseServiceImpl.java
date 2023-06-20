@@ -50,6 +50,14 @@ public class ClaseServiceImpl implements ClaseService {
     }
 
     @Override
+    public List<Clase> findByProfesorAndValoracionNotNull(Usuario profesor) {
+        cla = restTemplate.getForObject(urlWSetutoring + "clases/profesorValNotNull/{id}", Clase[].class,
+                profesor.getId());
+        List<Clase> clases = Arrays.asList(cla);
+        return clases;
+    }
+
+    @Override
     public Clase findByFechaAndHorariosAndProfesor(Date fecha, String horarios, Usuario profesor) {
         LocalDate diaSeleccionado = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 

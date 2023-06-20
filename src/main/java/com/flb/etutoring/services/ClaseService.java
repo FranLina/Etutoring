@@ -13,6 +13,8 @@ public interface ClaseService {
 
     public List<Clase> findByProfesor(Usuario profesor);
 
+    public List<Clase> findByProfesorAndValoracionNotNull(Usuario profesor);
+
     public Clase findByFechaAndHorariosAndProfesor(Date fecha, String horarios, Usuario profesor);
 
     public Clase findByFechaAndHorariosAndAlumno(Date fecha, String horarios, Usuario alumno);

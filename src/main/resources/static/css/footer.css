@@ -1,0 +1,14 @@
+.contenedor-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+@media screen and (max-width: 1000px) {
+  .contenedor-footer {
+    flex-direction: column-reverse;
+    row-gap: 1em;
+    align-items: center;
+    justify-content: center;
+  }
+}

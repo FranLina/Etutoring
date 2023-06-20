@@ -38,7 +38,7 @@ public class ValoracionController {
         ModelAndView modelAndView = new ModelAndView();
 
         Usuario profesor = uService.findById(id);
-        List<Clase> listadoClases = clService.findByProfesor(profesor);
+        List<Clase> listadoClases = clService.findByProfesorAndValoracionNotNull(profesor);
         List<CustomObjectValAlum> combinedList = new ArrayList<>();
         for (Clase c : listadoClases) {
             combinedList.add(new CustomObjectValAlum(c.getValoracion(), c.getAlumno()));

@@ -62,8 +62,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void deleteById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
+        restTemplate.delete(urlWSetutoring + "usuarios/{id}", id);
     }
 
 }
